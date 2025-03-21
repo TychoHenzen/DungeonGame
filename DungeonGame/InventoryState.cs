@@ -181,7 +181,7 @@ public class InventoryState : GameState, ITextureUser
             // Color based on dimension
             Color barColor = GetDimensionColor(i);
                 
-            spriteBatch.Draw(null, barRect, barColor);
+            spriteBatch.Draw(_texture, barRect, barColor);
         }
     }
         
