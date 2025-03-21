@@ -76,8 +76,17 @@ namespace DungeonGame
             _defaultFont = Content.Load<SpriteFont>("Fonts/DefaultFont");
             _smallFont = Content.Load<SpriteFont>("Fonts/SmallFont");
             
-            // Load UI texture
-            _uiTexture = Content.Load<Texture2D>("UIBox");
+            try 
+            {
+                // Load UI texture
+                _uiTexture = Content.Load<Texture2D>("UIBox");
+            }
+            catch (ContentLoadException)
+            {
+                // Create a 1x1 white texture as fallback
+                _uiTexture = new Texture2D(GraphicsDevice, 1, 1);
+                _uiTexture.SetData(new[] { Color.White });
+            }
             
             // Load state content
             foreach (var state in _gameStates.Values)
