@@ -84,7 +84,7 @@ public class DungeonState : GameState
                 new Vector2(_mapPanel.X + 10, _mapPanel.Y + _mapPanel.Height + 50), Color.White);
                 
             // Draw simplified exploration map
-            DrawSimplifiedMap(spriteBatch, dungeon, progress);
+            DrawSimplifiedMap(spriteBatch, dungeon, progress, smallFont);
         }
         else if (Game.GetDungeonResult() != null)
         {
@@ -153,7 +153,7 @@ public class DungeonState : GameState
         }
     }
         
-    private void DrawSimplifiedMap(SpriteBatch spriteBatch, Dungeon dungeon, float progress)
+    private void DrawSimplifiedMap(SpriteBatch spriteBatch, Dungeon dungeon, float progress, SpriteFont smallFont)
     {
         // Create a simplified map visualization
         int roomsCount = dungeon.Tiles.Count;
