@@ -8,11 +8,12 @@ namespace DungeonGame;
 /// <summary>
 /// Dungeon state
 /// </summary>
-public class DungeonState : GameState
+public class DungeonState : GameState, ITextureUser
 {
     private Rectangle _statusPanel;
     private Rectangle _mapPanel;
     private Rectangle _combatLogPanel;
+    private Texture2D _texture;
         
     public DungeonState(DungeonGame.SignatureGame game) : base(game) { }
         
@@ -43,7 +44,7 @@ public class DungeonState : GameState
         spriteBatch.DrawString(defaultFont, "Dungeon Exploration", new Vector2(50, 20), Color.White);
             
         // Draw status panel
-        spriteBatch.Draw(null, _statusPanel, Color.DarkSlateGray * 0.5f);
+        spriteBatch.Draw(_texture, _statusPanel, Color.DarkSlateGray * 0.5f);
         spriteBatch.DrawString(smallFont, "Status", new Vector2(_statusPanel.X + 10, _statusPanel.Y + 10), Color.White);
             
         // Draw player status
@@ -67,7 +68,7 @@ public class DungeonState : GameState
             new Vector2(_statusPanel.X + 20, _statusPanel.Y + 160), Color.White);
             
         // Draw map panel
-        spriteBatch.Draw(null, _mapPanel, Color.Black * 0.5f);
+        spriteBatch.Draw(_texture, _mapPanel, Color.Black * 0.5f);
             
         if (Game.IsRunningDungeon())
         {
@@ -76,7 +77,7 @@ public class DungeonState : GameState
             Rectangle progressBar = new Rectangle(_mapPanel.X, _mapPanel.Y + _mapPanel.Height + 20, 
                 (int)(_mapPanel.Width * progress), 20);
                 
-            spriteBatch.Draw(null, progressBar, Color.Green);
+            spriteBatch.Draw(_texture, progressBar, Color.Green);
                 
             // Draw time remaining
             float timeRemaining = (dungeon.Length * 60) - Game.GetRunTimer();
@@ -129,7 +130,7 @@ public class DungeonState : GameState
         }
             
         // Draw combat log panel
-        spriteBatch.Draw(null, _combatLogPanel, Color.DarkBlue * 0.5f);
+        spriteBatch.Draw(_texture, _combatLogPanel, Color.DarkBlue * 0.5f);
         spriteBatch.DrawString(smallFont, "Combat Log", new Vector2(_combatLogPanel.X + 10, _combatLogPanel.Y + 10), Color.White);
             
         // Draw combat log if available
@@ -183,7 +184,7 @@ public class DungeonState : GameState
             Rectangle tileRect = new Rectangle(x, y, tileSize, tileSize);
             Color tileColor = GetTileColor(tile.Type);
                 
-            spriteBatch.Draw(null, tileRect, tileColor);
+            spriteBatch.Draw(_texture, tileRect, tileColor);
                 
             // Draw tile name
             spriteBatch.DrawString(smallFont, tile.Type, 
@@ -212,5 +213,10 @@ public class DungeonState : GameState
             "Wood" => Color.SaddleBrown,
             _ => Color.LightGray // Stone or default
         };
+    }
+
+    public void SetTexture(Texture2D texture)
+    {
+        _texture = texture;
     }
 }

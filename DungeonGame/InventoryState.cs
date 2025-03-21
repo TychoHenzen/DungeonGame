@@ -7,11 +7,12 @@ namespace DungeonGame;
 /// <summary>
 /// Inventory state
 /// </summary>
-public class InventoryState : GameState
+public class InventoryState : GameState, ITextureUser
 {
     private Rectangle[] _itemSlots;
     private Rectangle[] _equipmentSlots;
     private Rectangle _dungeonButton;
+    private Texture2D _texture;
         
     public InventoryState(DungeonGame.SignatureGame game) : base(game) { }
         
@@ -81,7 +82,7 @@ public class InventoryState : GameState
         for (int i = 0; i < _itemSlots.Length; i++)
         {
             // Draw slot background
-            spriteBatch.Draw(null, _itemSlots[i], Color.Gray * 0.5f);
+            spriteBatch.Draw(_texture, _itemSlots[i], Color.Gray * 0.5f);
                 
             // Draw item if exists
             if (i < inventory.Items.Count)
@@ -117,7 +118,7 @@ public class InventoryState : GameState
         for (int i = 0; i < _equipmentSlots.Length; i++)
         {
             // Draw slot background
-            spriteBatch.Draw(null, _equipmentSlots[i], Color.DarkGray * 0.5f);
+            spriteBatch.Draw(_texture, _equipmentSlots[i], Color.DarkGray * 0.5f);
                 
             // Draw slot name
             spriteBatch.DrawString(smallFont, slots[i], 
@@ -143,7 +144,7 @@ public class InventoryState : GameState
         }
             
         // Draw dungeon button
-        spriteBatch.Draw(null, _dungeonButton, Game.GetSelectedDungeonItem() != null ? Color.Green : Color.Gray);
+        spriteBatch.Draw(_texture, _dungeonButton, Game.GetSelectedDungeonItem() != null ? Color.Green : Color.Gray);
         spriteBatch.DrawString(smallFont, "Start Dungeon", 
             new Vector2(_dungeonButton.X + 40, _dungeonButton.Y + 15), Color.White);
             
@@ -198,5 +199,10 @@ public class InventoryState : GameState
             7 => Color.Purple,  // Resonance
             _ => Color.White
         };
+    }
+
+    public void SetTexture(Texture2D texture)
+    {
+        _texture = texture;
     }
 }

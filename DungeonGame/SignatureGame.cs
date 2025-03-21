@@ -12,6 +12,7 @@ namespace DungeonGame
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private Texture2D _uiTexture;
         
         // Game state
         private GameState _currentState;
@@ -75,10 +76,17 @@ namespace DungeonGame
             _defaultFont = Content.Load<SpriteFont>("Fonts/DefaultFont");
             _smallFont = Content.Load<SpriteFont>("Fonts/SmallFont");
             
+            // Load UI texture
+            _uiTexture = Content.Load<Texture2D>("UIBox");
+            
             // Load state content
             foreach (var state in _gameStates.Values)
             {
                 state.LoadContent();
+                if (state is ITextureUser textureUser)
+                {
+                    textureUser.SetTexture(_uiTexture);
+                }
             }
         }
 
