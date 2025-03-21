@@ -92,7 +92,7 @@ public class InventoryState : GameState, ITextureUser
                 // Highlight if selected
                 if (item == Game.GetSelectedDungeonItem())
                 {
-                    spriteBatch.Draw(null, _itemSlots[i], Color.Purple * 0.5f);
+                    spriteBatch.Draw(_texture, _itemSlots[i], Color.Purple * 0.5f);
                 }
                     
                 // Draw item name
