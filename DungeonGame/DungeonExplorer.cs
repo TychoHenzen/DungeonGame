@@ -66,8 +66,15 @@ public class DungeonExplorer
                     
                     // Generate and collect loot
                     var loot = enemy.GenerateLoot();
-                    _dungeon.CollectedLoot.Add(loot);
-                    _explorationLog.Add($"Found {loot.Name} from defeated {enemy.Name}!");
+                    if (loot != null)
+                    {
+                        _dungeon.CollectedLoot.Add(loot);
+                        _explorationLog.Add($"Found {loot.Name} from defeated {enemy.Name}!");
+                    }
+                    else
+                    {
+                        _explorationLog.Add($"No loot found from defeated {enemy.Name}.");
+                    }
                     
                     // Check if all enemies are defeated
                     if (_dungeon.AreAllEnemiesDefeated())
