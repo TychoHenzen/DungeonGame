@@ -23,7 +23,7 @@ public class CombatSimulator
         var combatLog = new List<string>();
 
         // Calculate player stats and apply affinity bonus
-        var playerStats = CalculatePlayerStatsWithAffinity(player, dungeon, combatLog);
+        var playerStats = CalculatePlayerStatsWithAffinity(player, dungeon);
         float currentHealth = playerStats.MaxHealth;
 
         // Initialize combat tracking variables
@@ -68,7 +68,6 @@ public class CombatSimulator
 
         // Generate summary and result
         return CreateDungeonResult(
-            player,
             dungeon,
             success,
             currentHealth,
@@ -82,7 +81,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates player stats with affinity bonus applied
     /// </summary>
-    private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, List<string> combatLog)
+    private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon)
     {
         var playerStats = player.CalculateStats();
 
@@ -112,63 +111,84 @@ public class CombatSimulator
         int rounds = 0;
 
         // Combat rounds
-        while (enemyHealth > 0 && currentHealth > 0)
+        while (enemyHealth > 0 && currentHealth > 0 && rounds <= 20)
         {
             rounds++;
 
             // Determine if player attacks first based on speed
             bool playerFirst = playerStats.Speed >= enemy.Damage * 0.5f;
 
-            // Player's first attack if going first
-            if (playerFirst)
+            // Process combat round
+            var roundResult = ProcessCombatRound(playerFirst, playerStats, enemy, ref enemyHealth, ref currentHealth, combatLog);
+            totalDamageDealt += roundResult.damageDealt;
+            totalDamageTaken += roundResult.damageTaken;
+            
+            // Check if combat ended
+            if (enemyHealth <= 0 || currentHealth <= 0)
             {
-                float damage = CalculatePlayerDamage(playerStats, enemy);
-                ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
-                totalDamageDealt += damage;
-
-                // Check if enemy defeated
-                if (enemyHealth <= 0)
-                {
-                    combatLog.Add($"- {enemy.Name} was defeated!");
-                    return (true, totalDamageDealt, totalDamageTaken);
-                }
-            }
-
-            // Enemy attack
-            float enemyDamage = CalculateEnemyDamage(enemy, playerStats);
-            ApplyDamageToPlayer(ref currentHealth, enemyDamage, enemy.Name, combatLog);
-            totalDamageTaken += enemyDamage;
-
-            // Check if player defeated
-            if (currentHealth <= 0)
-            {
-                return (false, totalDamageDealt, totalDamageTaken);
-            }
-
-            // Player's second attack if going second
-            if (!playerFirst)
-            {
-                float damage = CalculatePlayerDamage(playerStats, enemy);
-                ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
-                totalDamageDealt += damage;
-
-                // Check if enemy defeated
-                if (enemyHealth <= 0)
-                {
-                    combatLog.Add($"- {enemy.Name} was defeated!");
-                    return (true, totalDamageDealt, totalDamageTaken);
-                }
-            }
-
-            // Prevent infinite loops
-            if (rounds > 20)
-            {
-                combatLog.Add("- Combat taking too long, moving on...");
                 break;
             }
         }
 
+        // Handle timeout case
+        if (rounds > 20 && enemyHealth > 0)
+        {
+            combatLog.Add("- Combat taking too long, moving on...");
+        }
+        
+        // Report enemy defeat if applicable
+        if (enemyHealth <= 0)
+        {
+            combatLog.Add($"- {enemy.Name} was defeated!");
+        }
+
         return (enemyHealth <= 0, totalDamageDealt, totalDamageTaken);
+    }
+
+    /// <summary>
+    /// Processes a single round of combat
+    /// </summary>
+    private (float damageDealt, float damageTaken) ProcessCombatRound(
+        bool playerFirst, PlayerStats playerStats, Enemy enemy, 
+        ref float enemyHealth, ref float currentHealth, List<string> combatLog)
+    {
+        float damageDealt = 0;
+        float damageTaken = 0;
+
+        // Player's first attack if going first
+        if (playerFirst)
+        {
+            float damage = CalculatePlayerDamage(playerStats, enemy);
+            ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
+            damageDealt += damage;
+
+            // Check if enemy defeated
+            if (enemyHealth <= 0)
+            {
+                return (damageDealt, damageTaken);
+            }
+        }
+
+        // Enemy attack
+        float enemyDamage = CalculateEnemyDamage(enemy, playerStats);
+        ApplyDamageToPlayer(ref currentHealth, enemyDamage, enemy.Name, combatLog);
+        damageTaken += enemyDamage;
+
+        // Check if player defeated
+        if (currentHealth <= 0)
+        {
+            return (damageDealt, damageTaken);
+        }
+
+        // Player's second attack if going second
+        if (!playerFirst)
+        {
+            float damage = CalculatePlayerDamage(playerStats, enemy);
+            ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
+            damageDealt += damage;
+        }
+
+        return (damageDealt, damageTaken);
     }
 
     /// <summary>
@@ -227,7 +247,6 @@ public class CombatSimulator
     /// Creates the final dungeon result
     /// </summary>
     private DungeonResult CreateDungeonResult(
-        Player player,
         Dungeon dungeon,
         bool success,
         float currentHealth,
