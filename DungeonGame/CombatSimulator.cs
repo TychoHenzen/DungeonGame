@@ -10,7 +10,7 @@ namespace DungeonGame;
 public class CombatSimulator
 {
     private readonly Random _random = new Random();
-    
+
     /// <summary>
     /// Simulates a complete dungeon run with the given player and dungeon
     /// </summary>
@@ -21,38 +21,39 @@ public class CombatSimulator
     {
         // Combat log to track events
         var combatLog = new List<string>();
-        
+
         // Calculate player stats and apply affinity bonus
         var playerStats = CalculatePlayerStatsWithAffinity(player, dungeon, combatLog);
         float currentHealth = playerStats.MaxHealth;
-        
+
         // Initialize combat tracking variables
         float totalDamageDealt = 0;
         float totalDamageTaken = 0;
         int enemiesDefeated = 0;
-        
+
         // Clone the enemy list for modification during combat
         var enemies = dungeon.Enemies.ToList();
         bool success = true;
-        
+
         // Start combat simulation
         combatLog.Add($"Entered dungeon with {enemies.Count} enemies!");
-        combatLog.Add($"Player stats - HP: {(int)playerStats.MaxHealth}, ATK: {(int)playerStats.Attack}, DEF: {(int)playerStats.Defense}, SPD: {(int)playerStats.Speed}");
-        
+        combatLog.Add(
+            $"Player stats - HP: {(int)playerStats.MaxHealth}, ATK: {(int)playerStats.Attack}, DEF: {(int)playerStats.Defense}, SPD: {(int)playerStats.Speed}");
+
         // Fight each enemy in sequence
         foreach (var enemy in enemies)
         {
             var combatResult = SimulateCombat(enemy, playerStats, ref currentHealth, combatLog);
-            
+
             // Update combat stats
             totalDamageDealt += combatResult.DamageDealt;
             totalDamageTaken += combatResult.DamageTaken;
-            
+
             if (combatResult.EnemyDefeated)
             {
                 enemiesDefeated++;
             }
-            
+
             // Check if player was defeated
             if (currentHealth <= 0)
             {
@@ -60,42 +61,42 @@ public class CombatSimulator
                 success = false;
                 break;
             }
-            
+
             // Recovery between fights
             RecoverBetweenFights(ref currentHealth, playerStats, combatLog);
         }
-        
+
         // Generate summary and result
         return CreateDungeonResult(
-            player, 
-            dungeon, 
-            success, 
-            currentHealth, 
-            playerStats, 
-            totalDamageDealt, 
-            totalDamageTaken, 
-            enemiesDefeated, 
+            player,
+            dungeon,
+            success,
+            currentHealth,
+            playerStats,
+            totalDamageDealt,
+            totalDamageTaken,
+            enemiesDefeated,
             combatLog);
     }
-    
+
     /// <summary>
     /// Calculates player stats with affinity bonus applied
     /// </summary>
     private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, List<string> combatLog)
     {
         var playerStats = player.CalculateStats();
-        
+
         // Calculate signature affinity bonus
         float affinityBonus = CalculateAffinityBonus(player.GetEquippedItems(), dungeon.Signature);
-        
+
         // Apply affinity bonus to stats
         playerStats.Attack *= (1 + affinityBonus * 0.3f);
         playerStats.Defense *= (1 + affinityBonus * 0.3f);
         playerStats.Speed *= (1 + affinityBonus * 0.2f);
-        
+
         return playerStats;
     }
-    
+
     /// <summary>
     /// Simulates combat between player and an enemy
     /// </summary>
@@ -104,27 +105,27 @@ public class CombatSimulator
     {
         // Log enemy encounter
         combatLog.Add($"Encountered {enemy.Name}! (HP: {(int)enemy.Health}, DMG: {(int)enemy.Damage})");
-        
+
         float enemyHealth = enemy.Health;
         float totalDamageDealt = 0;
         float totalDamageTaken = 0;
         int rounds = 0;
-        
+
         // Combat rounds
         while (enemyHealth > 0 && currentHealth > 0)
         {
             rounds++;
-            
+
             // Determine if player attacks first based on speed
             bool playerFirst = playerStats.Speed >= enemy.Damage * 0.5f;
-            
+
             // Player's first attack if going first
             if (playerFirst)
             {
                 float damage = CalculatePlayerDamage(playerStats, enemy);
                 ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
                 totalDamageDealt += damage;
-                
+
                 // Check if enemy defeated
                 if (enemyHealth <= 0)
                 {
@@ -132,25 +133,25 @@ public class CombatSimulator
                     return (true, totalDamageDealt, totalDamageTaken);
                 }
             }
-            
+
             // Enemy attack
             float enemyDamage = CalculateEnemyDamage(enemy, playerStats);
             ApplyDamageToPlayer(ref currentHealth, enemyDamage, enemy.Name, combatLog);
             totalDamageTaken += enemyDamage;
-            
+
             // Check if player defeated
             if (currentHealth <= 0)
             {
                 return (false, totalDamageDealt, totalDamageTaken);
             }
-            
+
             // Player's second attack if going second
             if (!playerFirst)
             {
                 float damage = CalculatePlayerDamage(playerStats, enemy);
                 ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
                 totalDamageDealt += damage;
-                
+
                 // Check if enemy defeated
                 if (enemyHealth <= 0)
                 {
@@ -158,7 +159,7 @@ public class CombatSimulator
                     return (true, totalDamageDealt, totalDamageTaken);
                 }
             }
-            
+
             // Prevent infinite loops
             if (rounds > 20)
             {
@@ -166,10 +167,10 @@ public class CombatSimulator
                 break;
             }
         }
-        
+
         return (enemyHealth <= 0, totalDamageDealt, totalDamageTaken);
     }
-    
+
     /// <summary>
     /// Calculates damage dealt by player with randomness
     /// </summary>
@@ -180,7 +181,7 @@ public class CombatSimulator
         float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * 0.2f);
         return (float)Math.Round(baseDamage * damageVariance);
     }
-    
+
     /// <summary>
     /// Calculates damage dealt by enemy with randomness
     /// </summary>
@@ -191,25 +192,27 @@ public class CombatSimulator
         float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * 0.5f);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
-    
+
     /// <summary>
     /// Applies damage to enemy and logs result
     /// </summary>
     private void ApplyDamageToEnemy(ref float enemyHealth, float damage, string enemyName, List<string> combatLog)
     {
         enemyHealth -= damage;
-        combatLog.Add($"- Player attacks for {(int)damage} damage! {enemyName} has {Math.Max(0, (int)enemyHealth)} HP left.");
+        combatLog.Add(
+            $"- Player attacks for {(int)damage} damage! {enemyName} has {Math.Max(0, (int)enemyHealth)} HP left.");
     }
-    
+
     /// <summary>
     /// Applies damage to player and logs result
     /// </summary>
     private void ApplyDamageToPlayer(ref float playerHealth, float damage, string enemyName, List<string> combatLog)
     {
         playerHealth -= damage;
-        combatLog.Add($"- {enemyName} attacks for {(int)damage} damage! Player has {Math.Max(0, (int)playerHealth)} HP left.");
+        combatLog.Add(
+            $"- {enemyName} attacks for {(int)damage} damage! Player has {Math.Max(0, (int)playerHealth)} HP left.");
     }
-    
+
     /// <summary>
     /// Handles health recovery between fights
     /// </summary>
@@ -219,7 +222,7 @@ public class CombatSimulator
         currentHealth = Math.Min(playerStats.MaxHealth, currentHealth + recovery);
         combatLog.Add($"Recovered {(int)recovery} HP. Current HP: {(int)currentHealth}");
     }
-    
+
     /// <summary>
     /// Creates the final dungeon result
     /// </summary>
@@ -240,17 +243,17 @@ public class CombatSimulator
             combatLog.Add($"DUNGEON CLEARED! Defeated {enemiesDefeated}/{dungeon.Enemies.Count} enemies.");
             combatLog.Add($"Total damage dealt: {(int)totalDamageDealt}, Total damage taken: {(int)totalDamageTaken}");
         }
-        
+
         // Define casualties based on remaining health
         bool casualties = success && (currentHealth / playerStats.MaxHealth < 0.3f);
         if (casualties)
         {
             combatLog.Add("Barely survived with heavy injuries!");
         }
-        
+
         // Generate loot based on success and dungeon signature
         var loot = GenerateLoot(success, casualties, dungeon, combatLog);
-        
+
         // Create and return dungeon result
         return new DungeonResult
         {
@@ -275,7 +278,7 @@ public class CombatSimulator
             }
         };
     }
-    
+
     /// <summary>
     /// Generates loot for the dungeon run
     /// </summary>
@@ -289,11 +292,13 @@ public class CombatSimulator
             {
                 loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));
             }
+
             combatLog.Add($"Found {lootCount} items!");
         }
+
         return loot;
     }
-    
+
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
@@ -301,7 +306,7 @@ public class CombatSimulator
     {
         float affinitySum = 0;
         int itemCount = 0;
-        
+
         foreach (var item in equippedItems.Values)
         {
             if (item != null)
@@ -311,22 +316,22 @@ public class CombatSimulator
                 itemCount++;
             }
         }
-        
+
         return itemCount > 0 ? affinitySum / itemCount : 0;
     }
-    
+
     /// <summary>
     /// Calculates Euclidean distance between two signatures
     /// </summary>
     private float SignatureDistance(float[] sig1, float[] sig2)
     {
         float sumSquaredDiffs = 0;
-        
+
         for (int i = 0; i < sig1.Length; i++)
         {
             sumSquaredDiffs += (sig1[i] - sig2[i]) * (sig1[i] - sig2[i]);
         }
-        
+
         return (float)Math.Sqrt(sumSquaredDiffs);
     }
 }
