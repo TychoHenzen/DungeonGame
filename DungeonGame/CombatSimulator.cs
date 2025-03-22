@@ -10,7 +10,33 @@ namespace DungeonGame;
 public class CombatSimulator
 {
     private readonly Random _random = new Random();
+    
+    // Constants to replace magic numbers
+    private const int MAX_COMBAT_ROUNDS = 20;
+    private const float PLAYER_RECOVERY_PERCENT = 0.15f;
+    private const float AFFINITY_ATTACK_BONUS = 0.3f;
+    private const float AFFINITY_DEFENSE_BONUS = 0.3f;
+    private const float AFFINITY_SPEED_BONUS = 0.2f;
+    private const float PLAYER_SPEED_ADVANTAGE_FACTOR = 0.5f;
+    private const float ENEMY_DEFENSE_FACTOR = 0.2f;
+    private const float PLAYER_DEFENSE_FACTOR = 0.5f;
+    private const float LOW_HEALTH_THRESHOLD = 0.3f;
 
+    /// <summary>
+    /// Helper class to reduce parameter count in methods
+    /// </summary>
+    private class DungeonRunData
+    {
+        public Dungeon Dungeon { get; set; }
+        public bool Success { get; set; }
+        public float CurrentHealth { get; set; }
+        public PlayerStats PlayerStats { get; set; }
+        public float TotalDamageDealt { get; set; }
+        public float TotalDamageTaken { get; set; }
+        public int EnemiesDefeated { get; set; }
+        public ICollection<string> CombatLog { get; set; }
+    }
+    
     /// <summary>
     /// Simulates a complete dungeon run with the given player and dungeon
     /// </summary>
@@ -67,15 +93,18 @@ public class CombatSimulator
         }
 
         // Generate summary and result
-        return CreateDungeonResult(
-            dungeon,
-            success,
-            currentHealth,
-            playerStats,
-            totalDamageDealt,
-            totalDamageTaken,
-            enemiesDefeated,
-            combatLog);
+        var runData = new DungeonRunData
+        {
+            Dungeon = dungeon,
+            Success = success,
+            CurrentHealth = currentHealth,
+            PlayerStats = playerStats,
+            TotalDamageDealt = totalDamageDealt,
+            TotalDamageTaken = totalDamageTaken,
+            EnemiesDefeated = enemiesDefeated,
+            CombatLog = combatLog
+        };
+        return CreateDungeonResult(runData);
     }
 
     /// <summary>
@@ -89,9 +118,9 @@ public class CombatSimulator
         float affinityBonus = CalculateAffinityBonus(player.GetEquippedItems(), dungeon.Signature);
 
         // Apply affinity bonus to stats
-        playerStats.Attack *= (1 + affinityBonus * 0.3f);
-        playerStats.Defense *= (1 + affinityBonus * 0.3f);
-        playerStats.Speed *= (1 + affinityBonus * 0.2f);
+        playerStats.Attack *= (1 + affinityBonus * AFFINITY_ATTACK_BONUS);
+        playerStats.Defense *= (1 + affinityBonus * AFFINITY_DEFENSE_BONUS);
+        playerStats.Speed *= (1 + affinityBonus * AFFINITY_SPEED_BONUS);
 
         return playerStats;
     }
@@ -100,7 +129,7 @@ public class CombatSimulator
     /// Simulates combat between player and an enemy
     /// </summary>
     private (bool EnemyDefeated, float DamageDealt, float DamageTaken) SimulateCombat(
-        Enemy enemy, PlayerStats playerStats, ref float currentHealth, List<string> combatLog)
+        Enemy enemy, PlayerStats playerStats, ref float currentHealth, ICollection<string> combatLog)
     {
         // Log enemy encounter
         combatLog.Add($"Encountered {enemy.Name}! (HP: {(int)enemy.Health}, DMG: {(int)enemy.Damage})");
@@ -111,12 +140,13 @@ public class CombatSimulator
         int rounds = 0;
 
         // Combat rounds
-        while (enemyHealth > 0 && currentHealth > 0 && rounds <= 20)
+        bool combatEnded = false;
+        while (!combatEnded && rounds < MAX_COMBAT_ROUNDS)
         {
             rounds++;
 
             // Determine if player attacks first based on speed
-            bool playerFirst = playerStats.Speed >= enemy.Damage * 0.5f;
+            bool playerFirst = playerStats.Speed >= enemy.Damage * PLAYER_SPEED_ADVANTAGE_FACTOR;
 
             // Process combat round
             var roundResult = ProcessCombatRound(playerFirst, playerStats, enemy, ref enemyHealth, ref currentHealth, combatLog);
@@ -124,14 +154,11 @@ public class CombatSimulator
             totalDamageTaken += roundResult.damageTaken;
             
             // Check if combat ended
-            if (enemyHealth <= 0 || currentHealth <= 0)
-            {
-                break;
-            }
+            combatEnded = enemyHealth <= 0 || currentHealth <= 0;
         }
 
         // Handle timeout case
-        if (rounds > 20 && enemyHealth > 0)
+        if (rounds >= MAX_COMBAT_ROUNDS && enemyHealth > 0)
         {
             combatLog.Add("- Combat taking too long, moving on...");
         }
@@ -150,7 +177,7 @@ public class CombatSimulator
     /// </summary>
     private (float damageDealt, float damageTaken) ProcessCombatRound(
         bool playerFirst, PlayerStats playerStats, Enemy enemy, 
-        ref float enemyHealth, ref float currentHealth, List<string> combatLog)
+        ref float enemyHealth, ref float currentHealth, ICollection<string> combatLog)
     {
         float damageDealt = 0;
         float damageTaken = 0;
@@ -198,7 +225,7 @@ public class CombatSimulator
     {
         // Calculate player damage with variance (80-120% damage)
         float damageVariance = 0.8f + (float)_random.NextDouble() * 0.4f;
-        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * 0.2f);
+        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * ENEMY_DEFENSE_FACTOR);
         return (float)Math.Round(baseDamage * damageVariance);
     }
 
@@ -209,14 +236,14 @@ public class CombatSimulator
     {
         // Enemy damage with variance (90-110% damage)
         float enemyDamageVariance = 0.9f + (float)_random.NextDouble() * 0.2f;
-        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * 0.5f);
+        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * PLAYER_DEFENSE_FACTOR);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
 
     /// <summary>
     /// Applies damage to enemy and logs result
     /// </summary>
-    private void ApplyDamageToEnemy(ref float enemyHealth, float damage, string enemyName, List<string> combatLog)
+    private static void ApplyDamageToEnemy(ref float enemyHealth, float damage, string enemyName, ICollection<string> combatLog)
     {
         enemyHealth -= damage;
         combatLog.Add(
@@ -226,7 +253,7 @@ public class CombatSimulator
     /// <summary>
     /// Applies damage to player and logs result
     /// </summary>
-    private void ApplyDamageToPlayer(ref float playerHealth, float damage, string enemyName, List<string> combatLog)
+    private static void ApplyDamageToPlayer(ref float playerHealth, float damage, string enemyName, ICollection<string> combatLog)
     {
         playerHealth -= damage;
         combatLog.Add(
@@ -236,9 +263,9 @@ public class CombatSimulator
     /// <summary>
     /// Handles health recovery between fights
     /// </summary>
-    private void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats, List<string> combatLog)
+    private void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats, ICollection<string> combatLog)
     {
-        float recovery = playerStats.MaxHealth * 0.15f;
+        float recovery = playerStats.MaxHealth * PLAYER_RECOVERY_PERCENT;
         currentHealth = Math.Min(playerStats.MaxHealth, currentHealth + recovery);
         combatLog.Add($"Recovered {(int)recovery} HP. Current HP: {(int)currentHealth}");
     }
@@ -246,54 +273,46 @@ public class CombatSimulator
     /// <summary>
     /// Creates the final dungeon result
     /// </summary>
-    private DungeonResult CreateDungeonResult(
-        Dungeon dungeon,
-        bool success,
-        float currentHealth,
-        PlayerStats playerStats,
-        float totalDamageDealt,
-        float totalDamageTaken,
-        int enemiesDefeated,
-        List<string> combatLog)
+    private DungeonResult CreateDungeonResult(DungeonRunData data)
     {
         // End of dungeon summary
-        if (success)
+        if (data.Success)
         {
-            combatLog.Add($"DUNGEON CLEARED! Defeated {enemiesDefeated}/{dungeon.Enemies.Count} enemies.");
-            combatLog.Add($"Total damage dealt: {(int)totalDamageDealt}, Total damage taken: {(int)totalDamageTaken}");
+            data.CombatLog.Add($"DUNGEON CLEARED! Defeated {data.EnemiesDefeated}/{data.Dungeon.Enemies.Count} enemies.");
+            data.CombatLog.Add($"Total damage dealt: {(int)data.TotalDamageDealt}, Total damage taken: {(int)data.TotalDamageTaken}");
         }
 
         // Define casualties based on remaining health
-        bool casualties = success && (currentHealth / playerStats.MaxHealth < 0.3f);
+        bool casualties = data.Success && (data.CurrentHealth / data.PlayerStats.MaxHealth < LOW_HEALTH_THRESHOLD);
         if (casualties)
         {
-            combatLog.Add("Barely survived with heavy injuries!");
+            data.CombatLog.Add("Barely survived with heavy injuries!");
         }
 
         // Generate loot based on success and dungeon signature
-        var loot = GenerateLoot(success, casualties, dungeon, combatLog);
+        var loot = GenerateLoot(data.Success, casualties, data.Dungeon, data.CombatLog);
 
         // Create and return dungeon result
         return new DungeonResult
         {
-            Success = success,
+            Success = data.Success,
             Casualties = casualties,
-            Duration = dungeon.Length,
+            Duration = data.Dungeon.Length,
             Loot = loot,
-            CombatLog = combatLog,
+            CombatLog = data.CombatLog,
             PlayerStats = new PlayerStats
             {
-                Attack = (int)playerStats.Attack,
-                Defense = (int)playerStats.Defense,
-                Speed = (int)playerStats.Speed,
-                MaxHealth = (int)playerStats.MaxHealth,
-                RemainingHealth = (int)currentHealth
+                Attack = (int)data.PlayerStats.Attack,
+                Defense = (int)data.PlayerStats.Defense,
+                Speed = (int)data.PlayerStats.Speed,
+                MaxHealth = (int)data.PlayerStats.MaxHealth,
+                RemainingHealth = (int)data.CurrentHealth
             },
             Stats = new CombatStats
             {
-                EnemiesDefeated = enemiesDefeated,
-                TotalDamageDealt = (int)totalDamageDealt,
-                TotalDamageTaken = (int)totalDamageTaken
+                EnemiesDefeated = data.EnemiesDefeated,
+                TotalDamageDealt = (int)data.TotalDamageDealt,
+                TotalDamageTaken = (int)data.TotalDamageTaken
             }
         };
     }
@@ -301,7 +320,7 @@ public class CombatSimulator
     /// <summary>
     /// Generates loot for the dungeon run
     /// </summary>
-    private List<Item> GenerateLoot(bool success, bool casualties, Dungeon dungeon, List<string> combatLog)
+    private List<Item> GenerateLoot(bool success, bool casualties, Dungeon dungeon, ICollection<string> combatLog)
     {
         var loot = new List<Item>();
         if (success)
