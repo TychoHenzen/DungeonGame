@@ -5,6 +5,35 @@ using System.Linq;
 namespace DungeonGame;
 
 /// <summary>
+/// Helper class for signature-related operations
+/// </summary>
+public static class SignatureHelper
+{
+    /// <summary>
+    /// Calculates Euclidean distance between two signatures
+    /// </summary>
+    public static float CalculateDistance(float[] sig1, float[] sig2)
+    {
+        float sumSquaredDiffs = 0;
+
+        for (int i = 0; i < sig1.Length; i++)
+        {
+            sumSquaredDiffs += (sig1[i] - sig2[i]) * (sig1[i] - sig2[i]);
+        }
+
+        return (float)Math.Sqrt(sumSquaredDiffs);
+    }
+
+    /// <summary>
+    /// Calculates similarity between two signatures (1 = identical, 0 = completely different)
+    /// </summary>
+    public static float CalculateSimilarity(float[] sig1, float[] sig2)
+    {
+        return 1 - CalculateDistance(sig1, sig2) / 4f;
+    }
+}
+
+/// <summary>
 /// Combat simulator that handles dungeon run simulations
 /// </summary>
 public class CombatSimulator
@@ -166,34 +195,32 @@ public class CombatSimulator
     {
         float damageDealt = 0;
         float damageTaken = 0;
+        bool combatContinues = true;
 
         // Player's first attack if going first
-        if (playerFirst)
+        if (playerFirst && combatContinues)
         {
             float damage = CalculatePlayerDamage(playerStats, enemy);
             ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
             damageDealt += damage;
 
             // Check if enemy defeated
-            if (enemyHealth <= 0)
-            {
-                return (damageDealt, damageTaken);
-            }
+            combatContinues = enemyHealth > 0;
         }
 
-        // Enemy attack
-        float enemyDamage = CalculateEnemyDamage(enemy, playerStats);
-        ApplyDamageToPlayer(ref currentHealth, enemyDamage, enemy.Name, combatLog);
-        damageTaken += enemyDamage;
-
-        // Check if player defeated
-        if (currentHealth <= 0)
+        // Enemy attack if combat continues
+        if (combatContinues)
         {
-            return (damageDealt, damageTaken);
+            float enemyDamage = CalculateEnemyDamage(enemy, playerStats);
+            ApplyDamageToPlayer(ref currentHealth, enemyDamage, enemy.Name, combatLog);
+            damageTaken += enemyDamage;
+
+            // Check if player defeated
+            combatContinues = currentHealth > 0;
         }
 
-        // Player's second attack if going second
-        if (!playerFirst)
+        // Player's second attack if going second and combat continues
+        if (!playerFirst && combatContinues)
         {
             float damage = CalculatePlayerDamage(playerStats, enemy);
             ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name, combatLog);
@@ -248,7 +275,7 @@ public class CombatSimulator
     /// <summary>
     /// Handles health recovery between fights
     /// </summary>
-    private void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats, ICollection<string> combatLog)
+    private static void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats, ICollection<string> combatLog)
     {
         float recovery = playerStats.MaxHealth * PLAYER_RECOVERY_PERCENT;
         currentHealth = Math.Min(playerStats.MaxHealth, currentHealth + recovery);
@@ -334,27 +361,12 @@ public class CombatSimulator
         {
             if (item != null)
             {
-                float similarity = 1 - SignatureDistance(item.Signature, dungeonSignature) / 4f;
+                float similarity = SignatureHelper.CalculateSimilarity(item.Signature, dungeonSignature);
                 affinitySum += similarity;
                 itemCount++;
             }
         }
 
         return itemCount > 0 ? affinitySum / itemCount : 0;
-    }
-
-    /// <summary>
-    /// Calculates Euclidean distance between two signatures
-    /// </summary>
-    private float SignatureDistance(float[] sig1, float[] sig2)
-    {
-        float sumSquaredDiffs = 0;
-
-        for (int i = 0; i < sig1.Length; i++)
-        {
-            sumSquaredDiffs += (sig1[i] - sig2[i]) * (sig1[i] - sig2[i]);
-        }
-
-        return (float)Math.Sqrt(sumSquaredDiffs);
     }
 }
