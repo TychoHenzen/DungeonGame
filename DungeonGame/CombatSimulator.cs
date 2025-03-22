@@ -45,6 +45,7 @@ public class CombatSimulator
         // Clone the enemy list for modification during combat
         var enemies = dungeon.Enemies.ToList();
         bool success = true;
+        bool playerDefeated = false;
 
         // Start combat simulation
         combatLog.Add($"Entered dungeon with {enemies.Count} enemies!");
@@ -52,8 +53,10 @@ public class CombatSimulator
             $"Player stats - HP: {(int)playerStats.MaxHealth}, ATK: {(int)playerStats.Attack}, DEF: {(int)playerStats.Defense}, SPD: {(int)playerStats.Speed}");
 
         // Fight each enemy in sequence
-        foreach (var enemy in enemies)
+        int enemyIndex = 0;
+        while (enemyIndex < enemies.Count && !playerDefeated)
         {
+            var enemy = enemies[enemyIndex];
             var combatResult = SimulateCombat(enemy, playerStats, ref currentHealth, combatLog);
 
             // Update combat stats
@@ -70,11 +73,14 @@ public class CombatSimulator
             {
                 combatLog.Add("PLAYER DEFEATED! Dungeon run failed!");
                 success = false;
-                break;
+                playerDefeated = true;
             }
-
-            // Recovery between fights
-            RecoverBetweenFights(ref currentHealth, playerStats, combatLog);
+            else
+            {
+                // Recovery between fights
+                RecoverBetweenFights(ref currentHealth, playerStats, combatLog);
+                enemyIndex++;
+            }
         }
 
         // Generate summary and result
@@ -323,7 +329,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, float[] dungeonSignature)
+    private static float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, float[] dungeonSignature)
     {
         float affinitySum = 0;
         int itemCount = 0;
