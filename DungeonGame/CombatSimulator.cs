@@ -9,7 +9,7 @@ namespace DungeonGame;
 /// </summary>
 public class CombatSimulator
 {
-    private readonly Random _random = new Random();
+    private readonly Random _random = new();
     
     // Constants to replace magic numbers
     private const int MAX_COMBAT_ROUNDS = 20;
@@ -22,21 +22,6 @@ public class CombatSimulator
     private const float PLAYER_DEFENSE_FACTOR = 0.5f;
     private const float LOW_HEALTH_THRESHOLD = 0.3f;
 
-    /// <summary>
-    /// Helper class to reduce parameter count in methods
-    /// </summary>
-    private class DungeonRunData
-    {
-        public Dungeon Dungeon { get; set; }
-        public bool Success { get; set; }
-        public float CurrentHealth { get; set; }
-        public PlayerStats PlayerStats { get; set; }
-        public float TotalDamageDealt { get; set; }
-        public float TotalDamageTaken { get; set; }
-        public int EnemiesDefeated { get; set; }
-        public ICollection<string> CombatLog { get; set; }
-    }
-    
     /// <summary>
     /// Simulates a complete dungeon run with the given player and dungeon
     /// </summary>
