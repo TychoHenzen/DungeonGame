@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,6 +28,8 @@ namespace DungeonGame
         private Player _player;
         private Inventory _inventory;
         private Dungeon _currentDungeon;
+        private Item[] _dungeonSlotItems;
+        private int _activeDungeonSlot = -1;
         private Item _selectedDungeonItem;
         private DungeonResult _dungeonResult;
         private bool _runningDungeon;
@@ -56,7 +59,8 @@ namespace DungeonGame
             
             // Set initial state
             _currentState = _gameStates[GameStateType.MainMenu];
-            
+            _dungeonSlotItems = new Item[3]; // 3 slots that can be unlocked over time
+
             // Initialize player and inventory
             _player = new Player();
             _inventory = new Inventory(20); // 20 slots
@@ -144,18 +148,20 @@ namespace DungeonGame
             _currentState = _gameStates[newState];
         }
         
-        public void StartDungeon(Item selectedItem)
+        public void StartDungeon(Item selectedItem, int slotIndex = 0)
         {
             if (selectedItem == null) return;
-            
+    
             _selectedDungeonItem = selectedItem;
+            _activeDungeonSlot = slotIndex;
             _currentDungeon = DungeonGenerator.GenerateDungeon(selectedItem.Signature);
             _runningDungeon = true;
             _runTimer = 0;
             _dungeonResult = null;
-            
+    
             ChangeState(GameStateType.Dungeon);
         }
+
         
         private void CompleteDungeon()
         {
@@ -173,7 +179,44 @@ namespace DungeonGame
                     _inventory.AddItem(item);
                 }
             }
+            if (_dungeonResult.Success && _dungeonSlotItems.Count(item => item != null) == 1)
+            {
+                // Unlock the next slot after first successful run with only one slot filled
+                UnlockNextDungeonSlot();
+            }
+
         }
+        public Item GetDungeonSlotItem(int slotIndex)
+        {
+            if (slotIndex >= 0 && slotIndex < _dungeonSlotItems.Length)
+            {
+                return _dungeonSlotItems[slotIndex];
+            }
+            return null;
+        }
+
+        public void SetDungeonSlotItem(Item item, int slotIndex)
+        {
+            if (slotIndex >= 0 && slotIndex < _dungeonSlotItems.Length)
+            {
+                _dungeonSlotItems[slotIndex] = item;
+            }
+        }
+
+        public void ClearDungeonSlot(int slotIndex)
+        {
+            if (slotIndex >= 0 && slotIndex < _dungeonSlotItems.Length)
+            {
+                _dungeonSlotItems[slotIndex] = null;
+            }
+        }
+        public void UnlockNextDungeonSlot()
+        {
+            var inventoryState = _gameStates[GameStateType.Inventory] as InventoryState;
+            inventoryState?.UnlockDungeonSlot();
+        }
+
+
         
         // Getters for game objects
         public Player GetPlayer() => _player;
@@ -199,5 +242,6 @@ namespace DungeonGame
     #region Combat System
 
     #endregion
+    
     
 }
