@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -73,18 +74,28 @@ public class DungeonState : GameState, ITextureUser
         if (Game.IsRunningDungeon())
         {
             // Draw progress bar
-            float progress = Game.GetRunTimer() / (dungeon.Length * 60);
+            float progress = Game.GetRunTimer() / 3.0f; // 3 seconds before simulation completes
+            progress = Math.Min(progress, 1.0f);
+            
             Rectangle progressBar = new Rectangle(_mapPanel.X, _mapPanel.Y + _mapPanel.Height + 20, 
                 (int)(_mapPanel.Width * progress), 20);
                 
             spriteBatch.Draw(_texture, progressBar, Color.Green);
                 
             // Draw time remaining
-            float timeRemaining = (dungeon.Length * 60) - Game.GetRunTimer();
-            spriteBatch.DrawString(smallFont, $"Time: {(int)(timeRemaining / 60)}:{(int)(timeRemaining % 60):D2}", 
-                new Vector2(_mapPanel.X + 10, _mapPanel.Y + _mapPanel.Height + 50), Color.White);
+            float timeRemaining = 3.0f - Game.GetRunTimer();
+            if (timeRemaining > 0)
+            {
+                spriteBatch.DrawString(smallFont, $"Exploring: {timeRemaining:F1}s", 
+                    new Vector2(_mapPanel.X + 10, _mapPanel.Y + _mapPanel.Height + 50), Color.White);
+            }
+            else
+            {
+                spriteBatch.DrawString(smallFont, "Calculating results...", 
+                    new Vector2(_mapPanel.X + 10, _mapPanel.Y + _mapPanel.Height + 50), Color.White);
+            }
                 
-            // Draw simplified exploration map
+            // Draw the tile map visualization
             DrawSimplifiedMap(spriteBatch, dungeon, progress, smallFont);
         }
         else if (Game.GetDungeonResult() != null)
@@ -127,6 +138,9 @@ public class DungeonState : GameState, ITextureUser
             // Draw return instruction
             spriteBatch.DrawString(smallFont, "Press I to return to inventory", 
                 new Vector2(_mapPanel.X + 20, _mapPanel.Y + _mapPanel.Height - 30), Color.White);
+                
+            // Draw final map state
+            DrawSimplifiedMap(spriteBatch, dungeon, 1.0f, smallFont);
         }
             
         // Draw combat log panel
@@ -147,6 +161,7 @@ public class DungeonState : GameState, ITextureUser
                 else if (log[i].Contains("PLAYER DEFEATED")) textColor = Color.Red;
                 else if (log[i].Contains("was defeated")) textColor = Color.LightBlue;
                 else if (log[i].Contains("Barely survived")) textColor = Color.Orange;
+                else if (log[i].Contains("Found")) textColor = Color.Gold;
                     
                 spriteBatch.DrawString(smallFont, log[i], 
                     new Vector2(_combatLogPanel.X + 10, _combatLogPanel.Y + 40 + i * 18), textColor, 0, Vector2.Zero, 0.8f, SpriteEffects.None, 0);
@@ -155,6 +170,145 @@ public class DungeonState : GameState, ITextureUser
     }
         
     private void DrawSimplifiedMap(SpriteBatch spriteBatch, Dungeon dungeon, float progress, SpriteFont smallFont)
+    {
+        // Handle case where TileMap isn't initialized yet (compatibility with old code)
+        if (dungeon.TileMap == null)
+        {
+            // Fall back to old visualization
+            DrawLegacyMap(spriteBatch, dungeon, progress, smallFont);
+            return;
+        }
+        
+        // Draw a representation of the tile map
+        int tileSize = Math.Min(
+            _mapPanel.Width / dungeon.Width, 
+            _mapPanel.Height / dungeon.Height
+        );
+        
+        int startX = _mapPanel.X + (_mapPanel.Width - tileSize * dungeon.Width) / 2;
+        int startY = _mapPanel.Y + (_mapPanel.Height - tileSize * dungeon.Height) / 2;
+        
+        // Calculate how much of the map to reveal based on progress
+        int revealedTiles = (int)(dungeon.Width * dungeon.Height * progress);
+        
+        // Draw the tile map
+        for (int x = 0; x < dungeon.Width; x++)
+        {
+            for (int y = 0; y < dungeon.Height; y++)
+            {
+                int tileIndex = y * dungeon.Width + x;
+                
+                // Only draw tiles that are revealed based on progress
+                if (tileIndex < revealedTiles)
+                {
+                    var tile = dungeon.TileMap[x, y];
+                    Rectangle tileRect = new Rectangle(
+                        startX + x * tileSize, 
+                        startY + y * tileSize, 
+                        tileSize, 
+                        tileSize
+                    );
+                    
+                    // Draw tile with appropriate color
+                    Color tileColor = GetTileColor(tile.Type);
+                    spriteBatch.Draw(_texture, tileRect, tileColor);
+                    
+                    // Draw player position
+                    if (x == dungeon.PlayerX && y == dungeon.PlayerY)
+                    {
+                        Rectangle playerRect = new Rectangle(
+                            tileRect.X + tileRect.Width / 4,
+                            tileRect.Y + tileRect.Height / 4,
+                            tileRect.Width / 2,
+                            tileRect.Height / 2
+                        );
+                        spriteBatch.Draw(_texture, playerRect, Color.White);
+                    }
+                    
+                    // Draw enemies that haven't been defeated yet
+                    var enemy = dungeon.GetEnemyAt(x, y);
+                    if (enemy != null)
+                    {
+                        Rectangle enemyRect = new Rectangle(
+                            tileRect.X + tileRect.Width / 3,
+                            tileRect.Y + tileRect.Height / 3,
+                            tileRect.Width / 3,
+                            tileRect.Height / 3
+                        );
+                        spriteBatch.Draw(_texture, enemyRect, Color.Red);
+                    }
+                    
+                    // Draw defeated enemies (optional)
+                    bool isDefeated = dungeon.DefeatedEnemies?.Any(e => e.X == x && e.Y == y) == true;
+                    if (isDefeated)
+                    {
+                        Rectangle defeatRect = new Rectangle(
+                            tileRect.X + tileRect.Width / 3,
+                            tileRect.Y + tileRect.Height / 3,
+                            tileRect.Width / 3,
+                            tileRect.Height / 3
+                        );
+                        spriteBatch.Draw(_texture, defeatRect, Color.Gray);
+                    }
+                }
+                else
+                {
+                    // Draw fog of war for unrevealed tiles
+                    Rectangle tileRect = new Rectangle(
+                        startX + x * tileSize, 
+                        startY + y * tileSize, 
+                        tileSize, 
+                        tileSize
+                    );
+                    spriteBatch.Draw(_texture, tileRect, Color.Black * 0.7f);
+                }
+            }
+        }
+        
+        // Draw legend
+        int legendX = startX + dungeon.Width * tileSize + 20;
+        int legendY = startY;
+        
+        // Draw title for the legend
+        spriteBatch.DrawString(smallFont, "Legend:", new Vector2(legendX, legendY), Color.White);
+        legendY += 25;
+        
+        // Draw player legend
+        Rectangle playerLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+        spriteBatch.Draw(_texture, playerLegend, Color.White);
+        spriteBatch.DrawString(smallFont, "Player", new Vector2(legendX + tileSize, legendY), Color.White);
+        legendY += tileSize;
+        
+        // Draw enemy legend
+        Rectangle enemyLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+        spriteBatch.Draw(_texture, enemyLegend, Color.Red);
+        spriteBatch.DrawString(smallFont, "Enemy", new Vector2(legendX + tileSize, legendY), Color.White);
+        legendY += tileSize;
+        
+        // Draw defeated enemy legend
+        Rectangle defeatedLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+        spriteBatch.Draw(_texture, defeatedLegend, Color.Gray);
+        spriteBatch.DrawString(smallFont, "Defeated Enemy", new Vector2(legendX + tileSize, legendY), Color.White);
+        legendY += tileSize;
+        
+        // Draw tile legends for common types
+        string[] commonTiles = { "Stone", "Water", "Lava", "Grass", "Sand" };
+        foreach (var tileType in commonTiles)
+        {
+            Rectangle tileLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+            spriteBatch.Draw(_texture, tileLegend, GetTileColor(tileType));
+            spriteBatch.DrawString(smallFont, tileType, new Vector2(legendX + tileSize, legendY), Color.White);
+            legendY += tileSize;
+        }
+        
+        // Draw enemies defeated count
+        int defeatedCount = dungeon.DefeatedEnemies?.Count ?? 0;
+        spriteBatch.DrawString(smallFont, $"Enemies: {defeatedCount}/{dungeon.Enemies.Count}", 
+            new Vector2(startX, startY + dungeon.Height * tileSize + 20), Color.White);
+    }
+    
+    // Legacy map drawing method for compatibility
+    private void DrawLegacyMap(SpriteBatch spriteBatch, Dungeon dungeon, float progress, SpriteFont smallFont)
     {
         // Create a simplified map visualization
         int roomsCount = dungeon.Tiles.Count;

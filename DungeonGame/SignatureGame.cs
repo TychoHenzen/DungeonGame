@@ -117,10 +117,11 @@ namespace DungeonGame
             // Update dungeon run if active
             if (_runningDungeon && _currentDungeon != null)
             {
+                // Increment timer to visualize exploration progress
                 _runTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 
-                // Complete dungeon when timer expires
-                if (_runTimer >= _currentDungeon.Length * 60)
+                // Simulate dungeon after a short time to allow for visualization
+                if (_runTimer >= 3.0f) // Wait 3 seconds before simulating
                 {
                     CompleteDungeon();
                 }
@@ -151,25 +152,27 @@ namespace DungeonGame
         public void StartDungeon(Item selectedItem, int slotIndex = 0)
         {
             if (selectedItem == null) return;
-    
+
             _selectedDungeonItem = selectedItem;
             _activeDungeonSlot = slotIndex;
             _currentDungeon = DungeonGenerator.GenerateDungeon(selectedItem.Signature);
             _runningDungeon = true;
             _runTimer = 0;
             _dungeonResult = null;
-    
+
+            // Consume the item - it's used to create the dungeon
+            _dungeonSlotItems[slotIndex] = null;
+
             ChangeState(GameStateType.Dungeon);
         }
 
-        
         private void CompleteDungeon()
         {
             _runningDungeon = false;
             
-            // Simulate combat and get results
-            var combatSimulator = new CombatSimulator();
-            _dungeonResult = combatSimulator.SimulateDungeonRun(_player, _currentDungeon);
+            // Run the dungeon exploration simulation
+            var dungeonExplorer = new DungeonExplorer(_currentDungeon, _player);
+            _dungeonResult = dungeonExplorer.ExploreAutomatically();
             
             // Add loot to inventory
             if (_dungeonResult.Success && _dungeonResult.Loot.Count > 0)
@@ -179,13 +182,14 @@ namespace DungeonGame
                     _inventory.AddItem(item);
                 }
             }
-            if (_dungeonResult.Success && _dungeonSlotItems.Count(item => item != null) == 1)
+            
+            if (_dungeonResult.Success && _dungeonSlotItems.Count(item => item != null) == 0)
             {
-                // Unlock the next slot after first successful run with only one slot filled
+                // Unlock the next slot after successful run
                 UnlockNextDungeonSlot();
             }
-
         }
+        
         public Item GetDungeonSlotItem(int slotIndex)
         {
             if (slotIndex >= 0 && slotIndex < _dungeonSlotItems.Length)
@@ -210,14 +214,13 @@ namespace DungeonGame
                 _dungeonSlotItems[slotIndex] = null;
             }
         }
+        
         public void UnlockNextDungeonSlot()
         {
             var inventoryState = _gameStates[GameStateType.Inventory] as InventoryState;
             inventoryState?.UnlockDungeonSlot();
         }
 
-
-        
         // Getters for game objects
         public Player GetPlayer() => _player;
         public Inventory GetInventory() => _inventory;
@@ -230,18 +233,4 @@ namespace DungeonGame
         // Setters
         public void SetSelectedDungeonItem(Item item) => _selectedDungeonItem = item;
     }
-    
-    #region Game States
-
-    #endregion
-    
-    #region Game Entities
-
-    #endregion
-    
-    #region Combat System
-
-    #endregion
-    
-    
 }
