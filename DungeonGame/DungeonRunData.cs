@@ -1,0 +1,18 @@
+using System.Collections.Generic;
+
+namespace DungeonGame;
+
+/// <summary>
+/// Helper class to reduce parameter count in methods
+/// </summary>
+public class DungeonRunData
+{
+    public Dungeon Dungeon { get; set; }
+    public bool Success { get; set; }
+    public float CurrentHealth { get; set; }
+    public PlayerStats PlayerStats { get; set; }
+    public float TotalDamageDealt { get; set; }
+    public float TotalDamageTaken { get; set; }
+    public int EnemiesDefeated { get; set; }
+    public List<string> CombatLog { get; set; }
+}

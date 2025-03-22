@@ -101,7 +101,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates player stats with affinity bonus applied
     /// </summary>
-    private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon)
+    private static PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon)
     {
         var playerStats = player.CalculateStats();
 
