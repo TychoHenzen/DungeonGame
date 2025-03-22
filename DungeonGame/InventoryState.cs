@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,7 +12,7 @@ public class InventoryState : GameState, ITextureUser
 {
     private Rectangle[] _itemSlots;
     private Rectangle[] _equipmentSlots;
-    private Rectangle[] _dungeonSlots;  // Multiple dungeon slots
+    private Rectangle[] _dungeonSlots;
     private Rectangle _dungeonButton;
     private Texture2D _texture;
     private MouseState _previousMouseState;
@@ -21,47 +22,88 @@ public class InventoryState : GameState, ITextureUser
     private Vector2 _dragPosition;
     private bool _isDragging;
     private int _dragSourceIndex = -1;
-    private string _dragSourceType = string.Empty;  // "inventory", "equipment", or "dungeon"
+    private string _dragSourceType = string.Empty;
     
     // Number of unlocked dungeon slots
-    private int _unlockedDungeonSlots = 1;  // Start with 1 unlocked slot
+    private int _unlockedDungeonSlots = 1;
     
     public InventoryState(DungeonGame.SignatureGame game) : base(game) { }
     
     public override void LoadContent()
     {
-        // Get screen dimensions for responsive layout
+        // Get screen dimensions
         int screenWidth = Game.GraphicsDevice.Viewport.Width;
         int screenHeight = Game.GraphicsDevice.Viewport.Height;
         
-        // Create item slot rectangles - moved to left side with smaller width
+        // Layout constants
+        const int inventoryX = 50;
+        const int inventoryY = 100;
+        const int inventorySlotWidth = 160;
+        const int inventorySlotHeight = 100;
+        const int inventorySpacingX = 20;
+        const int inventorySpacingY = 20;
+        
+        // Create inventory slots (4x5 grid on left side)
         _itemSlots = new Rectangle[20];
         for (int i = 0; i < 20; i++)
         {
-            int x = 50 + (i % 4) * 180;
-            int y = 100 + (i / 4) * 120;
-            _itemSlots[i] = new Rectangle(x, y, 160, 100);
+            int row = i / 4;
+            int col = i % 4;
+            int x = inventoryX + col * (inventorySlotWidth + inventorySpacingX);
+            int y = inventoryY + row * (inventorySlotHeight + inventorySpacingY);
+            _itemSlots[i] = new Rectangle(x, y, inventorySlotWidth, inventorySlotHeight);
         }
         
-        // Create equipment slot rectangles - moved further right to avoid overlap
+        // Calculate last inventory slot position to ensure equipment doesn't overlap
+        int lastInventorySlotRight = inventoryX + 3 * (inventorySlotWidth + inventorySpacingX) + inventorySlotWidth;
+        
+        // Equipment section (right side of screen)
+        int equipmentX = Math.Max(lastInventorySlotRight + 100, screenWidth - 400);
+        const int equipmentY = 100;
+        const int equipmentSlotWidth = 160;
+        const int equipmentSlotHeight = 100;
+        const int equipmentSpacingY = 20;
+        
+        // Create equipment slots (vertical list on right)
         string[] slots = {"weapon", "shield", "helmet", "armor", "amulet", "ring", "boots"};
         _equipmentSlots = new Rectangle[slots.Length];
+        
         for (int i = 0; i < slots.Length; i++)
         {
-            int column = i % 2;
-            int row = i / 2;
-            _equipmentSlots[i] = new Rectangle(screenWidth - 450 + column * 220, 100 + row * 120, 160, 100);
+            _equipmentSlots[i] = new Rectangle(
+                equipmentX,
+                equipmentY + i * (equipmentSlotHeight + equipmentSpacingY),
+                equipmentSlotWidth, 
+                equipmentSlotHeight);
         }
         
-        // Create dungeon slots (up to 3 that can be unlocked)
+        // Dungeon slots section (bottom right)
+        const int dungeonSlotWidth = 200;
+        const int dungeonSlotHeight = 100;
+        const int dungeonSlotSpacingY = 20;
+        int dungeonSlotsX = Math.Max(equipmentX + inventorySlotWidth+ 100, screenWidth - 400);
+        
+        
+        // Create dungeon slots
         _dungeonSlots = new Rectangle[3];
         for (int i = 0; i < 3; i++)
         {
-            _dungeonSlots[i] = new Rectangle(screenWidth - 250, screenHeight - 400 + i * 120, 200, 100);
+            _dungeonSlots[i] = new Rectangle(
+                dungeonSlotsX,
+                equipmentY + i * (dungeonSlotHeight + dungeonSlotSpacingY),
+                dungeonSlotWidth,
+                dungeonSlotHeight);
         }
         
-        // Create buttons at bottom of screen
-        _dungeonButton = new Rectangle(screenWidth - 250, screenHeight - 120, 200, 50);
+        // Calculate last dungeon slot position
+        int lastDungeonSlotBottom = equipmentY + 2 * (dungeonSlotHeight + dungeonSlotSpacingY) + dungeonSlotHeight;
+        
+        // Create dungeon button below dungeon slots
+        _dungeonButton = new Rectangle(
+            dungeonSlotsX,
+            lastDungeonSlotBottom + 30,
+            dungeonSlotWidth,
+            50);
         
         _previousMouseState = Mouse.GetState();
     }
@@ -284,10 +326,10 @@ public class InventoryState : GameState, ITextureUser
         spriteBatch.DrawString(defaultFont, "Inventory", new Vector2(50, 50), Color.White);
         
         // Draw equipment title
-        spriteBatch.DrawString(defaultFont, "Equipment", new Vector2(Game.GraphicsDevice.Viewport.Width - 450, 50), Color.White);
+        spriteBatch.DrawString(defaultFont, "Equipment", new Vector2(_equipmentSlots[0].X, 50), Color.White);
         
         // Draw dungeon slots title
-        spriteBatch.DrawString(defaultFont, "Dungeon Slots", new Vector2(Game.GraphicsDevice.Viewport.Width - 250, Game.GraphicsDevice.Viewport.Height - 450), Color.White);
+        spriteBatch.DrawString(defaultFont, "Dungeon Slots", new Vector2(_dungeonSlots[0].X, _dungeonSlots[0].Y - 30), Color.White);
         
         // Draw inventory slots
         var inventory = Game.GetInventory();
