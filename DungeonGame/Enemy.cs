@@ -10,4 +10,6 @@ public class Enemy
     public float Health { get; set; }
     public float Damage { get; set; }
     public float[] Signature { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }
 }
