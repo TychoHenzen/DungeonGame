@@ -40,6 +40,7 @@ namespace DungeonGame
             
             _graphics.PreferredBackBufferWidth = 1280;
             _graphics.PreferredBackBufferHeight = 720;
+            Window.AllowUserResizing = true;
         }
 
         protected override void Initialize()

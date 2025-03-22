@@ -12,41 +12,53 @@ public class InventoryState : GameState, ITextureUser
     private Rectangle[] _itemSlots;
     private Rectangle[] _equipmentSlots;
     private Rectangle _dungeonButton;
+    private Rectangle _equipButton;  // New equip button
     private Texture2D _texture;
+    private MouseState _previousMouseState;  // Track previous mouse state
         
     public InventoryState(DungeonGame.SignatureGame game) : base(game) { }
         
     public override void LoadContent()
     {
-        // Create item slot rectangles
+        // Get screen dimensions for responsive layout
+        int screenWidth = Game.GraphicsDevice.Viewport.Width;
+        int screenHeight = Game.GraphicsDevice.Viewport.Height;
+        
+        // Create item slot rectangles - moved to left side with smaller width
         _itemSlots = new Rectangle[20];
         for (int i = 0; i < 20; i++)
         {
-            int x = 100 + (i % 5) * 220;
-            int y = 300 + (i / 5) * 120;
-            _itemSlots[i] = new Rectangle(x, y, 200, 100);
+            int x = 50 + (i % 4) * 180;
+            int y = 100 + (i / 4) * 120;
+            _itemSlots[i] = new Rectangle(x, y, 160, 100);
         }
             
-        // Create equipment slot rectangles
+        // Create equipment slot rectangles - moved further right to avoid overlap
         string[] slots = {"weapon", "shield", "helmet", "armor", "amulet", "ring", "boots"};
         _equipmentSlots = new Rectangle[slots.Length];
         for (int i = 0; i < slots.Length; i++)
         {
-            _equipmentSlots[i] = new Rectangle(800 + (i % 2) * 220, 100 + (i / 2) * 120, 200, 100);
+            int column = i % 2;
+            int row = i / 2;
+            _equipmentSlots[i] = new Rectangle(screenWidth - 450 + column * 220, 100 + row * 120, 160, 100);
         }
             
-        // Create dungeon button
-        _dungeonButton = new Rectangle(900, 600, 200, 50);
+        // Create buttons at bottom of screen
+        _dungeonButton = new Rectangle(screenWidth - 250, screenHeight - 120, 200, 50);
+        _equipButton = new Rectangle(screenWidth - 470, screenHeight - 120, 200, 50);
+        
+        _previousMouseState = Mouse.GetState();
     }
         
     public override void Update(GameTime gameTime)
     {
         var mouseState = Mouse.GetState();
+        bool isNewClick = mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Released;
             
         // Check for mouse clicks
-        if (mouseState.LeftButton == ButtonState.Pressed)
+        if (isNewClick)
         {
-            // Check item slots
+            // Check item slots for selection
             for (int i = 0; i < _itemSlots.Length; i++)
             {
                 if (_itemSlots[i].Contains(mouseState.Position))
@@ -61,21 +73,42 @@ public class InventoryState : GameState, ITextureUser
                 }
             }
                 
+            // Check equip button - new functionality
+            if (_equipButton.Contains(mouseState.Position) && Game.GetSelectedDungeonItem() != null)
+            {
+                // Equip the selected item
+                Game.GetPlayer().EquipItem(Game.GetSelectedDungeonItem());
+            }
+                
             // Check dungeon button
             if (_dungeonButton.Contains(mouseState.Position) && Game.GetSelectedDungeonItem() != null)
             {
                 Game.StartDungeon(Game.GetSelectedDungeonItem());
             }
+            
+            // Check equipment slots for unequipping (optional click on equipped item to unequip)
+            for (int i = 0; i < _equipmentSlots.Length; i++)
+            {
+                if (_equipmentSlots[i].Contains(mouseState.Position))
+                {
+                    string[] slots = {"weapon", "shield", "helmet", "armor", "amulet", "ring", "boots"};
+                    Game.GetPlayer().UnequipItem(slots[i]);
+                    break;
+                }
+            }
         }
+        
+        // Update previous mouse state
+        _previousMouseState = mouseState;
     }
         
     public override void Draw(SpriteBatch spriteBatch, SpriteFont defaultFont, SpriteFont smallFont)
     {
         // Draw inventory title
-        spriteBatch.DrawString(defaultFont, "Inventory", new Vector2(100, 50), Color.White);
+        spriteBatch.DrawString(defaultFont, "Inventory", new Vector2(50, 50), Color.White);
             
         // Draw equipment title
-        spriteBatch.DrawString(defaultFont, "Equipment", new Vector2(800, 50), Color.White);
+        spriteBatch.DrawString(defaultFont, "Equipment", new Vector2(Game.GraphicsDevice.Viewport.Width - 450, 50), Color.White);
             
         // Draw inventory slots
         var inventory = Game.GetInventory();
@@ -109,7 +142,7 @@ public class InventoryState : GameState, ITextureUser
                     
                 // Draw item signature indicator
                 DrawSignatureIndicator(spriteBatch, item.Signature, 
-                    new Vector2(_itemSlots[i].X + 10, _itemSlots[i].Y + 70), 180, 20);
+                    new Vector2(_itemSlots[i].X + 10, _itemSlots[i].Y + 70), 140, 20);
             }
         }
             
@@ -139,22 +172,28 @@ public class InventoryState : GameState, ITextureUser
                     
                 // Draw signature indicator
                 DrawSignatureIndicator(spriteBatch, equippedItem.Signature, 
-                    new Vector2(_equipmentSlots[i].X + 10, _equipmentSlots[i].Y + 70), 180, 20);
+                    new Vector2(_equipmentSlots[i].X + 10, _equipmentSlots[i].Y + 70), 140, 20);
             }
         }
             
-        // Draw dungeon button
+        // Draw buttons
         spriteBatch.Draw(_texture, _dungeonButton, Game.GetSelectedDungeonItem() != null ? Color.Green : Color.Gray);
         spriteBatch.DrawString(smallFont, "Start Dungeon", 
             new Vector2(_dungeonButton.X + 40, _dungeonButton.Y + 15), Color.White);
+            
+        // Draw new equip button
+        spriteBatch.Draw(_texture, _equipButton, Game.GetSelectedDungeonItem() != null ? Color.Blue : Color.Gray);
+        spriteBatch.DrawString(smallFont, "Equip Item", 
+            new Vector2(_equipButton.X + 60, _equipButton.Y + 15), Color.White);
             
         // Draw selected item info if exists
         if (Game.GetSelectedDungeonItem() != null)
         {
             var item = Game.GetSelectedDungeonItem();
-            spriteBatch.DrawString(defaultFont, "Selected Item:", new Vector2(100, 200), Color.White);
-            spriteBatch.DrawString(smallFont, item.Name, new Vector2(250, 200), Color.White);
-            spriteBatch.DrawString(smallFont, $"Type: {item.Type} | Power: {item.Power}", new Vector2(250, 230), Color.White);
+            spriteBatch.DrawString(defaultFont, "Selected Item:", new Vector2(50, Game.GraphicsDevice.Viewport.Height - 180), Color.White);
+            spriteBatch.DrawString(smallFont, item.Name, new Vector2(200, Game.GraphicsDevice.Viewport.Height - 180), Color.White);
+            spriteBatch.DrawString(smallFont, $"Type: {item.Type} | Slot: {item.Slot} | Power: {item.Power}", 
+                new Vector2(200, Game.GraphicsDevice.Viewport.Height - 150), Color.White);
         }
     }
         
