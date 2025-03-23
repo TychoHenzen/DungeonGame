@@ -378,17 +378,36 @@ public class DungeonExplorer
     /// </summary>
     private float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, float[] dungeonSignature)
     {
+        Signature dungeonSig;
+        try
+        {
+            dungeonSig = new Signature(dungeonSignature);
+        }
+        catch (ArgumentException)
+        {
+            // Create a default signature if the provided one is invalid
+            dungeonSig = Signature.CreateRandom();
+        }
+        
         float affinitySum = 0;
         int itemCount = 0;
         
         foreach (var item in equippedItems.Values)
         {
-            if (item != null)
+            if (item != null && item.Signature != null)
             {
-                // Use SignatureHelper instead of duplicating the distance calculation
-                float similarity = SignatureHelper.CalculateSimilarity(item.Signature, dungeonSignature);
-                affinitySum += similarity;
-                itemCount++;
+                try
+                {
+                    var itemSignature = new Signature(item.Signature);
+                    float similarity = itemSignature.CalculateSimilarityWith(dungeonSig);
+                    affinitySum += similarity;
+                    itemCount++;
+                }
+                catch (ArgumentException)
+                {
+                    // Skip items with invalid signatures
+                    continue;
+                }
             }
         }
         

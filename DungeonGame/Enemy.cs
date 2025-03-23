@@ -14,6 +14,25 @@ public class Enemy
     public int Y { get; set; }
     
     /// <summary>
+    /// Gets a Signature object from the raw signature values
+    /// </summary>
+    /// <returns>A Signature object, or null if the signature is invalid</returns>
+    public Signature GetSignatureObject()
+    {
+        if (Signature == null)
+            return null;
+            
+        try
+        {
+            return new Signature(Signature);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
+    
+    /// <summary>
     /// Generates loot when the enemy is defeated
     /// </summary>
     /// <returns>An item as loot, or null if no loot is generated</returns>

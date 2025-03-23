@@ -93,26 +93,22 @@ public static class ItemGenerator
         
     private static float[] GenerateRandomSignature()
     {
-        float[] signature = new float[SignatureDimensions.Names.Length];
-            
-        for (int i = 0; i < signature.Length; i++)
-        {
-            signature[i] = (float)(_random.NextDouble() * 2 - 1);
-        }
-            
-        return signature;
+        var signature = Signature.CreateRandom(_random);
+        return signature.GetValues();
     }
 
     public static float[] GenerateSimilarSignature(float[] baseSignature, float variance)
     {
-        float[] signature = new float[baseSignature.Length];
-            
-        for (int i = 0; i < signature.Length; i++)
+        try
         {
-            float newValue = baseSignature[i] + (float)(_random.NextDouble() * 2 - 1) * variance;
-            signature[i] = Math.Max(-1, Math.Min(1, newValue)); // Clamp between -1 and 1
+            var baseSig = new Signature(baseSignature);
+            var similarSig = Signature.CreateSimilar(baseSig, variance, _random);
+            return similarSig.GetValues();
         }
-            
-        return signature;
+        catch (ArgumentException)
+        {
+            // Fallback for invalid signatures
+            return GenerateRandomSignature();
+        }
     }
 }

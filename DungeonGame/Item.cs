@@ -21,4 +21,23 @@ public class Item
     {
         Id = Guid.NewGuid();
     }
+    
+    /// <summary>
+    /// Gets a Signature object from the raw signature values
+    /// </summary>
+    /// <returns>A Signature object, or null if the signature is invalid</returns>
+    public Signature GetSignatureObject()
+    {
+        if (Signature == null)
+            return null;
+            
+        try
+        {
+            return new Signature(Signature);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
 }

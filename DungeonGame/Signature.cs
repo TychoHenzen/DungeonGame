@@ -40,7 +40,7 @@ public class Signature
         
         for (int i = 0; i < Dimensions; i++)
         {
-            values[i] = (float)random.NextDouble();
+            values[i] = (float)(random.NextDouble() * 2 - 1);
         }
         
         return new Signature(values);
@@ -58,7 +58,7 @@ public class Signature
         {
             // Add random variance within the specified range
             float delta = ((float)random.NextDouble() * 2 - 1) * variance;
-            values[i] = Math.Clamp(baseSignature[i] + delta, 0f, 1f);
+            values[i] = Math.Clamp(baseSignature[i] + delta, -1f, 1f);
         }
         
         return new Signature(values);

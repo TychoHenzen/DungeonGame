@@ -225,9 +225,26 @@ public static class DungeonGenerator
         // Get random enemy type
         var enemyTypes = EnemyTypes.Types.Values.ToList();
         var enemyType = enemyTypes[_random.Next(enemyTypes.Count)];
+        
+        // Create Signature objects
+        Signature tileSignature;
+        Signature dungeonSig;
+        
+        try
+        {
+            tileSignature = new Signature(tile.Signature);
+            dungeonSig = new Signature(dungeonSignature);
+        }
+        catch (ArgumentException)
+        {
+            // Fallback to random signatures if invalid
+            tileSignature = Signature.CreateRandom(_random);
+            dungeonSig = Signature.CreateRandom(_random);
+        }
             
         // Generate enemy signature similar to tile
-        float[] enemySignature = ItemGenerator.GenerateSimilarSignature(tile.Signature, 0.3f);
+        var enemySig = Signature.CreateSimilar(tileSignature, 0.3f, _random);
+        float[] enemySignature = enemySig.GetValues();
             
         // Generate adjective for enemy name
         string adjective = string.Empty;
@@ -249,7 +266,7 @@ public static class DungeonGenerator
         string enemyName = string.IsNullOrEmpty(adjective) ? enemyType.Name : $"{adjective} {enemyType.Name}";
             
         // Scale enemy stats based on signature similarity to dungeon
-        float similarityFactor = 1 - SignatureDistance(enemySignature, dungeonSignature) / 4;
+        float similarityFactor = 1 - enemySig.CalculateDistanceFrom(dungeonSig) / 4;
             
         return new Enemy
         {
@@ -263,13 +280,6 @@ public static class DungeonGenerator
     
     private static float SignatureDistance(float[] sig1, float[] sig2)
     {
-        float sumSquaredDiffs = 0;
-            
-        for (int i = 0; i < sig1.Length; i++)
-        {
-            sumSquaredDiffs += (sig1[i] - sig2[i]) * (sig1[i] - sig2[i]);
-        }
-            
-        return (float)Math.Sqrt(sumSquaredDiffs);
+        return SignatureHelper.CalculateDistance(sig1, sig2);
     }
 }

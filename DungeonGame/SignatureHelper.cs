@@ -28,7 +28,7 @@ public static class SignatureHelper
     /// </summary>
     public static float CalculateSimilarity(float[] sig1, float[] sig2)
     {
-        float maxDistance = (float)Math.Sqrt(sig1.Length); // Maximum possible distance in n-dimensional space with values 0-1
-        return 1 - CalculateDistance(sig1, sig2) / maxDistance;
+        float maxDistance = (float)Math.Sqrt(Math.Max(sig1.Length, sig2.Length) * 4); // Maximum possible distance in n-dimensional space with values -1 to 1
+        return 1 - Math.Min(CalculateDistance(sig1, sig2) / maxDistance, 1.0f);
     }
 }

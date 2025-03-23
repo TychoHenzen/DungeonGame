@@ -10,6 +10,25 @@ public class Dungeon
 {
     // Original properties
     public float[] Signature { get; set; }
+    
+    /// <summary>
+    /// Gets a Signature object from the raw signature values
+    /// </summary>
+    /// <returns>A Signature object, or null if the signature is invalid</returns>
+    public Signature GetSignatureObject()
+    {
+        if (Signature == null)
+            return null;
+            
+        try
+        {
+            return new Signature(Signature);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
     public List<Tile> Tiles { get; set; }
     public List<Enemy> Enemies { get; set; }
     public int Difficulty { get; set; } // 1-3
