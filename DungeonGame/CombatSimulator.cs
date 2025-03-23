@@ -27,14 +27,15 @@ public class CombatSimulator
     /// </summary>
     /// <param name="player">The player participating in the dungeon run</param>
     /// <param name="dungeon">The dungeon to be explored</param>
+    /// <param name="selectedItem">The item selected for the dungeon run</param>
     /// <returns>A DungeonResult containing the outcome and details of the run</returns>
-    public DungeonResult SimulateDungeonRun(Player player, Dungeon dungeon)
+    public DungeonResult SimulateDungeonRun(Player player, Dungeon dungeon, Item selectedItem = null)
     {
         // Combat log to track events
         var combatLog = new List<string>();
 
         // Calculate player stats and apply affinity bonus
-        var playerStats = CalculatePlayerStatsWithAffinity(player, dungeon);
+        var playerStats = CalculatePlayerStatsWithAffinity(player, dungeon, selectedItem);
         float currentHealth = playerStats.MaxHealth;
 
         // Initialize combat tracking variables
@@ -101,12 +102,22 @@ public class CombatSimulator
     /// <summary>
     /// Calculates player stats with affinity bonus applied
     /// </summary>
-    private static PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon)
+    private static PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, Item selectedItem = null)
     {
         var playerStats = player.CalculateStats();
 
         // Calculate signature affinity bonus
-        float affinityBonus = CalculateAffinityBonus(player.GetEquippedItems(), dungeon.Signature);
+        var equippedItems = player.GetEquippedItems();
+        
+        // Add selected item to the calculation if provided
+        if (selectedItem != null)
+        {
+            var tempItems = new Dictionary<string, Item>(equippedItems);
+            tempItems["selected"] = selectedItem;
+            equippedItems = tempItems;
+        }
+        
+        float affinityBonus = CalculateAffinityBonus(equippedItems, dungeon.Signature);
 
         // Apply affinity bonus to stats
         playerStats.Attack *= (1 + affinityBonus * AFFINITY_ATTACK_BONUS);
@@ -323,7 +334,14 @@ public class CombatSimulator
             int lootCount = _random.Next(1, 4) + (casualties ? 0 : 2);
             for (int i = 0; i < lootCount; i++)
             {
-                loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));
+                if (dungeon.Signature != null)
+                {
+                    loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));
+                }
+                else
+                {
+                    loot.Add(ItemGenerator.GenerateRandomItem());
+                }
             }
 
             combatLog.Add($"Found {lootCount} items!");
@@ -337,6 +355,9 @@ public class CombatSimulator
     /// </summary>
     private static float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, float[] dungeonSignatureValues)
     {
+        if (dungeonSignatureValues == null)
+            return 0;
+            
         var dungeonSignature = new Signature(dungeonSignatureValues);
         float affinitySum = 0;
         int itemCount = 0;
