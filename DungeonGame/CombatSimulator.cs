@@ -370,7 +370,8 @@ public class CombatSimulator
                 {
                     var itemSignature = new Signature(item.Signature);
                     float similarity = itemSignature.CalculateSimilarityWith(dungeonSignature);
-                    affinitySum += similarity;
+                    // Increase the weight of each matching item to provide a stronger bonus
+                    affinitySum += similarity * 1.5f;
                     itemCount++;
                 }
                 catch (ArgumentException)
