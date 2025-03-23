@@ -13,14 +13,14 @@ namespace DungeonGame.Tests
         private SpriteFont _mockDefaultFont;
         private SpriteFont _mockSmallFont;
         private Mock<Texture2D> _mockTexture;
-        private Mock<SignatureGame> _mockGame;
+        private TestSignatureGame _testGame;
         private Dungeon _testDungeon;
         private Player _testPlayer;
 
         [SetUp]
         public void Setup()
         {
-            _mockGame = new Mock<SignatureGame>();
+            _testGame = new TestSignatureGame();
             _mockSpriteBatch = new Mock<SpriteBatch>();
             _mockDefaultFont = null; // Can't mock SpriteFont as it's sealed
             _mockSmallFont = null;   // Can't mock SpriteFont as it's sealed
@@ -29,12 +29,13 @@ namespace DungeonGame.Tests
             _testPlayer = new Player();
             _testDungeon = new Dungeon();
             
-            _mockGame.Setup(g => g.GetPlayer()).Returns(_testPlayer);
-            _mockGame.Setup(g => g.GetCurrentDungeon()).Returns(_testDungeon);
-            _mockGame.Setup(g => g.IsRunningDungeon()).Returns(true);
-            _mockGame.Setup(g => g.GetRunTimer()).Returns(10f);
+            // Set up the test game
+            _testGame.TestPlayer = _testPlayer;
+            _testGame.TestDungeon = _testDungeon;
+            _testGame.TestRunningDungeon = true;
+            _testGame.TestRunTimer = 10f;
             
-            _dungeonState = new DungeonState(_mockGame.Object);
+            _dungeonState = new DungeonState(_testGame);
         }
 
         [Test]
@@ -82,5 +83,32 @@ namespace DungeonGame.Tests
             Assert.That(forestColor, Is.Not.EqualTo(mountainColor));
             Assert.That(desertColor, Is.Not.EqualTo(mountainColor));
         }
+    }
+    
+    // Test implementation of SignatureGame for testing
+    private class TestSignatureGame : SignatureGame
+    {
+        public Player TestPlayer { get; set; } = new Player();
+        public Dungeon TestDungeon { get; set; } = new Dungeon();
+        public bool TestRunningDungeon { get; set; } = false;
+        public float TestRunTimer { get; set; } = 0f;
+        public Item TestSelectedItem { get; set; } = null;
+        public Inventory TestInventory { get; set; } = new Inventory(16);
+        
+        public TestSignatureGame() : base() { }
+        
+        // Override the methods to return our test objects
+        public override Player GetPlayer() => TestPlayer;
+        public override Dungeon GetCurrentDungeon() => TestDungeon;
+        public override bool IsRunningDungeon() => TestRunningDungeon;
+        public override float GetRunTimer() => TestRunTimer;
+        public override Item GetSelectedDungeonItem() => TestSelectedItem;
+        public override Inventory GetInventory() => TestInventory;
+        
+        // Override methods that require graphics
+        protected override void Initialize() { }
+        protected override void LoadContent() { }
+        protected override void Update(GameTime gameTime) { }
+        protected override void Draw(GameTime gameTime) { }
     }
 }

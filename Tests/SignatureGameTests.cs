@@ -34,9 +34,8 @@ namespace DungeonGame.Tests
             // Act
             _game.ChangeState(GameStateType.Inventory);
             
-            // Assert - We can't directly check the private state, but we can verify behavior
-            // This is a limited test, but ensures the method doesn't throw
-            Assert.DoesNotThrow(() => _game.ChangeState(GameStateType.Inventory));
+            // Assert - We can verify the state was changed
+            Assert.That(((TestSignatureGame)_game).CurrentStateType, Is.EqualTo(GameStateType.Inventory));
         }
 
         [Test]
@@ -98,6 +97,8 @@ namespace DungeonGame.Tests
         // Test subclass that doesn't initialize graphics
         private class TestSignatureGame : SignatureGame
         {
+            public GameStateType CurrentStateType { get; private set; }
+            
             public TestSignatureGame() : base()
             {
                 // Skip base initialization that requires graphics
@@ -116,6 +117,13 @@ namespace DungeonGame.Tests
                 _player = new Player();
                 _inventory = new Inventory(16);
                 _dungeonSlotItems = new Item[3];
+            }
+            
+            // Override ChangeState to track the current state
+            public override void ChangeState(GameStateType stateType)
+            {
+                CurrentStateType = stateType;
+                base.ChangeState(stateType);
             }
         }
     }
