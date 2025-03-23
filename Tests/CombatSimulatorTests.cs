@@ -30,10 +30,12 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Sword",
                 Type = "Weapon",
+                Slot = "Weapon",
                 Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f },
                 Attack = 10,
                 Defense = 0,
-                Speed = 5
+                Speed = 5,
+                Power = 10
             };
             
             // Create basic armor with a signature
@@ -41,10 +43,12 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Armor",
                 Type = "Armor",
+                Slot = "Armor",
                 Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f },
                 Attack = 0,
                 Defense = 10,
-                Speed = 0
+                Speed = 0,
+                Power = 10
             };
             
             // Equip items to player

@@ -27,7 +27,7 @@ public class Player
 
     public void EquipItem(Item item)
     {
-        if (item != null && _equippedItems.ContainsKey(item.Slot.ToLower()))
+        if (item != null && item.Slot != null && _equippedItems.ContainsKey(item.Slot.ToLower()))
         {
             _equippedItems[item.Slot.ToLower()] = item;
         }
