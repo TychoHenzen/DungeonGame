@@ -18,6 +18,9 @@ namespace DungeonGame.Tests
             _testItem = new Item();
             _testItem.Name = "Test Item";
             _testItem.Type = "weapon";
+            
+            // Initialize the player and inventory in the test subclass
+            ((TestSignatureGame)_game).InitializeTestObjects();
         }
 
         [TearDown]
@@ -105,6 +108,15 @@ namespace DungeonGame.Tests
             protected override void LoadContent() { }
             protected override void Update(GameTime gameTime) { }
             protected override void Draw(GameTime gameTime) { }
+            
+            // Initialize test objects that would normally be created in Initialize()
+            public void InitializeTestObjects()
+            {
+                // Create player and inventory for testing
+                _player = new Player();
+                _inventory = new Inventory(16);
+                _dungeonSlots = new Item[3];
+            }
         }
     }
 }
