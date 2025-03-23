@@ -31,7 +31,7 @@ namespace DungeonGame.Tests
                 Name = "Test Sword",
                 Type = "Weapon",
                 Slot = "Weapon",
-                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f },
+                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f },
                 Attack = 10,
                 Defense = 0,
                 Speed = 5,
@@ -44,7 +44,7 @@ namespace DungeonGame.Tests
                 Name = "Test Armor",
                 Type = "Armor",
                 Slot = "Armor",
-                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f },
+                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f },
                 Attack = 0,
                 Defense = 10,
                 Speed = 0,
@@ -62,7 +62,7 @@ namespace DungeonGame.Tests
                 Type = "Goblin",
                 Health = 20,
                 Damage = 5,
-                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f }
+                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f }
             };
             
             // Create a basic dungeon for testing
@@ -70,7 +70,7 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Dungeon",
                 Length = 3,
-                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f },
+                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f },
                 Enemies = new List<Enemy> { _enemy }
             };
         }
@@ -127,7 +127,7 @@ namespace DungeonGame.Tests
         {
             // Arrange
             // Change dungeon signature to be very different
-            _dungeon.Signature = new float[] { 0.0f, 0.0f, 1.0f, 1.0f };
+            _dungeon.Signature = new float[] { -0.9f, -0.9f, -0.9f, -0.9f, -0.9f, -0.9f, -0.9f, -0.9f };
 
             // Act
             var result = _simulator.SimulateDungeonRun(_player, _dungeon);
@@ -149,7 +149,7 @@ namespace DungeonGame.Tests
                 Type = "Orc",
                 Health = 15,
                 Damage = 4,
-                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f }
+                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f }
             };
             
             var enemy3 = new Enemy
@@ -158,7 +158,7 @@ namespace DungeonGame.Tests
                 Type = "Skeleton",
                 Health = 10,
                 Damage = 3,
-                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f }
+                Signature = new float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f }
             };
             
             _dungeon.Enemies.Add(enemy2);
