@@ -10,7 +10,7 @@ namespace DungeonGame;
 public class CombatSimulator
 {
     private readonly Random _random = new();
-    
+
     // Constants to replace magic numbers
     private const int MAX_COMBAT_ROUNDS = 20;
     private const float PLAYER_RECOVERY_PERCENT = 0.15f;
@@ -140,10 +140,11 @@ public class CombatSimulator
             bool playerFirst = playerStats.Speed >= enemy.Damage * PLAYER_SPEED_ADVANTAGE_FACTOR;
 
             // Process combat round
-            var roundResult = ProcessCombatRound(playerFirst, playerStats, enemy, ref enemyHealth, ref currentHealth, combatLog);
+            var roundResult = ProcessCombatRound(playerFirst, playerStats, enemy, ref enemyHealth, ref currentHealth,
+                combatLog);
             totalDamageDealt += roundResult.damageDealt;
             totalDamageTaken += roundResult.damageTaken;
-            
+
             // Check if combat ended
             combatEnded = enemyHealth <= 0 || currentHealth <= 0;
         }
@@ -153,7 +154,7 @@ public class CombatSimulator
         {
             combatLog.Add("- Combat taking too long, moving on...");
         }
-        
+
         // Report enemy defeat if applicable
         if (enemyHealth <= 0)
         {
@@ -167,7 +168,7 @@ public class CombatSimulator
     /// Processes a single round of combat
     /// </summary>
     private (float damageDealt, float damageTaken) ProcessCombatRound(
-        bool playerFirst, PlayerStats playerStats, Enemy enemy, 
+        bool playerFirst, PlayerStats playerStats, Enemy enemy,
         ref float enemyHealth, ref float currentHealth, ICollection<string> combatLog)
     {
         float damageDealt = 0;
@@ -232,7 +233,8 @@ public class CombatSimulator
     /// <summary>
     /// Applies damage to enemy and logs result
     /// </summary>
-    private static void ApplyDamageToEnemy(ref float enemyHealth, float damage, string enemyName, ICollection<string> combatLog)
+    private static void ApplyDamageToEnemy(ref float enemyHealth, float damage, string enemyName,
+        ICollection<string> combatLog)
     {
         enemyHealth -= damage;
         combatLog.Add(
@@ -242,7 +244,8 @@ public class CombatSimulator
     /// <summary>
     /// Applies damage to player and logs result
     /// </summary>
-    private static void ApplyDamageToPlayer(ref float playerHealth, float damage, string enemyName, ICollection<string> combatLog)
+    private static void ApplyDamageToPlayer(ref float playerHealth, float damage, string enemyName,
+        ICollection<string> combatLog)
     {
         playerHealth -= damage;
         combatLog.Add(
@@ -252,7 +255,8 @@ public class CombatSimulator
     /// <summary>
     /// Handles health recovery between fights
     /// </summary>
-    private static void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats, ICollection<string> combatLog)
+    private static void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats,
+        ICollection<string> combatLog)
     {
         float recovery = playerStats.MaxHealth * PLAYER_RECOVERY_PERCENT;
         currentHealth = Math.Min(playerStats.MaxHealth, currentHealth + recovery);
@@ -267,8 +271,10 @@ public class CombatSimulator
         // End of dungeon summary
         if (data.Success)
         {
-            data.CombatLog.Add($"DUNGEON CLEARED! Defeated {data.EnemiesDefeated}/{data.Dungeon.Enemies.Count} enemies.");
-            data.CombatLog.Add($"Total damage dealt: {(int)data.TotalDamageDealt}, Total damage taken: {(int)data.TotalDamageTaken}");
+            data.CombatLog.Add(
+                $"DUNGEON CLEARED! Defeated {data.EnemiesDefeated}/{data.Dungeon.Enemies.Count} enemies.");
+            data.CombatLog.Add(
+                $"Total damage dealt: {(int)data.TotalDamageDealt}, Total damage taken: {(int)data.TotalDamageTaken}");
         }
 
         // Define casualties based on remaining health
