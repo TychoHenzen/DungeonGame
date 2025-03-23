@@ -115,7 +115,7 @@ namespace DungeonGame.Tests
                 // Create player and inventory for testing
                 _player = new Player();
                 _inventory = new Inventory(16);
-                _dungeonSlots = new Item[3];
+                _dungeonSlotItems = new Item[3];
             }
         }
     }
