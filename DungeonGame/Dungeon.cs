@@ -26,7 +26,8 @@ public class Dungeon
     public List<Enemy> DefeatedEnemies { get; set; }
     public List<Item> CollectedLoot { get; set; }
     public bool IsExplored { get; set; }
-    
+    public string Name { get; set; }
+
     /// <summary>
     /// Initializes a new dungeon
     /// </summary>

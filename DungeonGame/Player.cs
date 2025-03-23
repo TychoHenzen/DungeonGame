@@ -22,7 +22,9 @@ public class Player
             { "boots", null }
         };
     }
-        
+
+    public string Name { get; set; }
+
     public void EquipItem(Item item)
     {
         if (item != null && _equippedItems.ContainsKey(item.Slot.ToLower()))

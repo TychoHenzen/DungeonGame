@@ -13,7 +13,10 @@ public class Item
     public int Power { get; set; }
     public float[] Signature { get; set; }
     public Guid Id { get; private set; }
-        
+    public int Attack { get; set; }
+    public int Defense { get; set; }
+    public int Speed { get; set; }
+
     public Item()
     {
         Id = Guid.NewGuid();

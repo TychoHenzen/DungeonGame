@@ -18,7 +18,7 @@ public class DungeonExplorer
     
     private bool _isRunning;
     private int _explorationSteps;
-    private int _maxSteps = 100; // Prevent infinite loops
+    private const int MAX_STEPS = 100; // Prevent infinite loops (changed from magic number)
     
     public DungeonExplorer(Dungeon dungeon, Player player)
     {
@@ -48,7 +48,7 @@ public class DungeonExplorer
         _explorationLog.Add($"Player stats - HP: {(int)_playerStats.MaxHealth}, ATK: {(int)_playerStats.Attack}, DEF: {(int)_playerStats.Defense}, SPD: {(int)_playerStats.Speed}");
         
         // Run the exploration algorithm
-        while (_isRunning && _explorationSteps < _maxSteps)
+        while (_isRunning && _explorationSteps < MAX_STEPS)
         {
             _explorationSteps++;
             
@@ -385,27 +385,13 @@ public class DungeonExplorer
         {
             if (item != null)
             {
-                float similarity = 1 - SignatureDistance(item.Signature, dungeonSignature) / 4f;
+                // Use SignatureHelper instead of duplicating the distance calculation
+                float similarity = SignatureHelper.CalculateSimilarity(item.Signature, dungeonSignature);
                 affinitySum += similarity;
                 itemCount++;
             }
         }
         
         return itemCount > 0 ? affinitySum / itemCount : 0;
-    }
-    
-    /// <summary>
-    /// Calculates Euclidean distance between two signatures
-    /// </summary>
-    private float SignatureDistance(float[] sig1, float[] sig2)
-    {
-        float sumSquaredDiffs = 0;
-        
-        for (int i = 0; i < sig1.Length; i++)
-        {
-            sumSquaredDiffs += (sig1[i] - sig2[i]) * (sig1[i] - sig2[i]);
-        }
-        
-        return (float)Math.Sqrt(sumSquaredDiffs);
     }
 }
