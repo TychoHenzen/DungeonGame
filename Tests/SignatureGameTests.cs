@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework;
-using NUnit.Framework;
-using Moq;
 
 namespace DungeonGame.Tests
 {

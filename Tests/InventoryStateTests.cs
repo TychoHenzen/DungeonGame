@@ -88,38 +88,4 @@ namespace DungeonGame.Tests
             Assert.That(color1, Is.Not.EqualTo(color2));
         }
     }
-    
-    // Test implementation of SignatureGame for testing
-    private class TestSignatureGame : SignatureGame
-    {
-        public Player TestPlayer { get; set; } = new Player();
-        public Dungeon TestDungeon { get; set; } = new Dungeon();
-        public bool TestRunningDungeon { get; set; } = false;
-        public float TestRunTimer { get; set; } = 0f;
-        public Item TestSelectedItem { get; set; } = null;
-        public Inventory TestInventory { get; set; } = new Inventory(16);
-        public bool UnlockNextDungeonSlotCalled { get; private set; } = false;
-        
-        public TestSignatureGame() : base() { }
-        
-        // Override the methods to return our test objects
-        public override Player GetPlayer() => TestPlayer;
-        public override Dungeon GetCurrentDungeon() => TestDungeon;
-        public override bool IsRunningDungeon() => TestRunningDungeon;
-        public override float GetRunTimer() => TestRunTimer;
-        public override Item GetSelectedDungeonItem() => TestSelectedItem;
-        public override Inventory GetInventory() => TestInventory;
-        
-        // Override methods that require graphics
-        protected override void Initialize() { }
-        protected override void LoadContent() { }
-        protected override void Update(GameTime gameTime) { }
-        protected override void Draw(GameTime gameTime) { }
-        
-        // Add this method for the UnlockDungeonSlot test
-        public override void UnlockNextDungeonSlot()
-        {
-            UnlockNextDungeonSlotCalled = true;
-        }
-    }
 }

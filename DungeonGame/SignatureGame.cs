@@ -25,10 +25,10 @@ namespace DungeonGame
         private SpriteFont _smallFont;
         
         // Game data
-        private Player _player;
-        private Inventory _inventory;
+        protected Player _player;
+        protected Inventory _inventory;
         private Dungeon _currentDungeon;
-        private Item[] _dungeonSlotItems;
+        protected Item[] _dungeonSlotItems;
         private int _activeDungeonSlot = -1;
         private Item _selectedDungeonItem;
         private DungeonResult _dungeonResult;
