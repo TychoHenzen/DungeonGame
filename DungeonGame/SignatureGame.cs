@@ -27,13 +27,13 @@ namespace DungeonGame
         // Game data
         protected Player _player;
         protected Inventory _inventory;
-        private Dungeon _currentDungeon;
+        protected Dungeon _currentDungeon;
         protected Item[] _dungeonSlotItems;
         private int _activeDungeonSlot = -1;
         private Item _selectedDungeonItem;
-        private DungeonResult _dungeonResult;
-        private bool _runningDungeon;
-        private float _runTimer;
+        protected DungeonResult _dungeonResult;
+        protected bool _runningDungeon;
+        protected float _runTimer;
 
         public SignatureGame()
         {
@@ -144,7 +144,7 @@ namespace DungeonGame
             base.Draw(gameTime);
         }
         
-        public void ChangeState(GameStateType newState)
+        public virtual void ChangeState(GameStateType newState)
         {
             _currentState = _gameStates[newState];
         }

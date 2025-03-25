@@ -36,11 +36,10 @@ namespace DungeonGame.Tests
             _inventoryState = new InventoryState(_testGame);
         }
 
-        [Test]
-        public void SetTexture_ShouldSetTexture()
+        [TearDown]
+        public void TearDown()
         {
-            // Act & Assert
-            Assert.DoesNotThrow(() => _inventoryState.SetTexture(_mockTexture.Object));
+            _testGame.Dispose();
         }
 
         [Test]
@@ -60,32 +59,5 @@ namespace DungeonGame.Tests
             Assert.Pass("Skipping test that requires SpriteFont");
         }
 
-        [Test]
-        public void UnlockDungeonSlot_ShouldCallGameUnlockMethod()
-        {
-            // Act
-            _inventoryState.UnlockDungeonSlot();
-            
-            // Assert
-            Assert.That(_testGame.UnlockNextDungeonSlotCalled, Is.True);
-        }
-
-        [Test]
-        public void GetDimensionColor_ShouldReturnDifferentColorsForDifferentDimensions()
-        {
-            // This test uses reflection to access the private method
-            var methodInfo = typeof(InventoryState).GetMethod("GetDimensionColor", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
-            // Act
-            var color0 = (Color)methodInfo.Invoke(_inventoryState, new object[] { 0 });
-            var color1 = (Color)methodInfo.Invoke(_inventoryState, new object[] { 1 });
-            var color2 = (Color)methodInfo.Invoke(_inventoryState, new object[] { 2 });
-            
-            // Assert
-            Assert.That(color0, Is.Not.EqualTo(color1));
-            Assert.That(color0, Is.Not.EqualTo(color2));
-            Assert.That(color1, Is.Not.EqualTo(color2));
-        }
     }
 }

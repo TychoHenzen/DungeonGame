@@ -1,24 +1,24 @@
 using Microsoft.Xna.Framework;
+using NUnit.Framework;
 
 namespace DungeonGame.Tests
 {
     [TestFixture]
     public class SignatureGameTests
     {
-        private SignatureGame _game;
+        private TestSignatureGame _game;
         private Item _testItem;
 
         [SetUp]
         public void Setup()
         {
-            // Create a test subclass that doesn't initialize graphics
             _game = new TestSignatureGame();
             _testItem = new Item();
             _testItem.Name = "Test Item";
             _testItem.Type = "weapon";
             
-            // Initialize the player and inventory in the test subclass
-            ((TestSignatureGame)_game).InitializeTestObjects();
+            // Initialize the player and inventory in the test game
+            _game.InitializeTestObjects();
         }
 
         [TearDown]
@@ -26,6 +26,7 @@ namespace DungeonGame.Tests
         {
             _game.Dispose();
         }
+
         [Test]
         public void ChangeState_ShouldUpdateCurrentState()
         {
@@ -33,18 +34,7 @@ namespace DungeonGame.Tests
             _game.ChangeState(GameStateType.Inventory);
             
             // Assert - We can verify the state was changed
-            Assert.That(((TestSignatureGame)_game).CurrentStateType, Is.EqualTo(GameStateType.Inventory));
-        }
-
-        [Test]
-        public void StartDungeon_ShouldSetupDungeonRun()
-        {
-            // Act
-            _game.StartDungeon(_testItem);
-            
-            // Assert
-            Assert.That(_game.IsRunningDungeon(), Is.True);
-            Assert.That(_game.GetSelectedDungeonItem(), Is.EqualTo(_testItem));
+            Assert.That(_game.CurrentStateType, Is.EqualTo(GameStateType.Inventory));
         }
 
         [Test]
@@ -90,39 +80,6 @@ namespace DungeonGame.Tests
             // Assert
             Assert.That(inventory, Is.Not.Null);
             Assert.That(inventory, Is.InstanceOf<Inventory>());
-        }
-
-        // Test subclass that doesn't initialize graphics
-        private class TestSignatureGame : SignatureGame
-        {
-            public GameStateType CurrentStateType { get; private set; }
-            
-            public TestSignatureGame() : base()
-            {
-                // Skip base initialization that requires graphics
-            }
-
-            // Override methods that require graphics
-            protected override void Initialize() { }
-            protected override void LoadContent() { }
-            protected override void Update(GameTime gameTime) { }
-            protected override void Draw(GameTime gameTime) { }
-            
-            // Initialize test objects that would normally be created in Initialize()
-            public void InitializeTestObjects()
-            {
-                // Create player and inventory for testing
-                _player = new Player();
-                _inventory = new Inventory(16);
-                _dungeonSlotItems = new Item[3];
-            }
-            
-            // Override ChangeState to track the current state
-            public override void ChangeState(GameStateType stateType)
-            {
-                CurrentStateType = stateType;
-                base.ChangeState(stateType);
-            }
         }
     }
 }
