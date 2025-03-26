@@ -12,8 +12,7 @@ namespace DungeonGame.Code.Systems;
 public static class DungeonGenerator
 {
     private static readonly Random _random = new();
-    private const int DefaultMapWidth = 20;
-    private const int DefaultMapHeight = 15;
+    private static readonly GameConstants _constants = GameConstants.Default;
 
     public static Dungeon GenerateDungeon(Signature itemSignature)
     {
@@ -25,8 +24,8 @@ public static class DungeonGenerator
             Signature = dungeonSignature,
             Difficulty = _random.Next(1, 4), // 1-3
             Length = _random.Next(3, 6), // 3-5 minutes (we'll keep this for progress tracking)
-            Width = DefaultMapWidth,
-            Height = DefaultMapHeight
+            Width = _constants.DefaultMapWidth,
+            Height = _constants.DefaultMapHeight
         };
 
         // Generate tile map using Perlin-like noise based on signature

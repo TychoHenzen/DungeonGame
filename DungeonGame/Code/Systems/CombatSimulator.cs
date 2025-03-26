@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
 using DungeonGame.Code.Enums;
+using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Models;
 
 namespace DungeonGame.Code.Systems;
@@ -13,17 +14,7 @@ namespace DungeonGame.Code.Systems;
 public class CombatSimulator
 {
     private readonly Random _random = new();
-
-    // Constants to replace magic numbers
-    private const int MAX_COMBAT_ROUNDS = 20;
-    private const float PLAYER_RECOVERY_PERCENT = 0.15f;
-    private const float AFFINITY_ATTACK_BONUS = 0.5f;  // Increased from 0.3f to 0.5f
-    private const float AFFINITY_DEFENSE_BONUS = 0.3f;
-    private const float AFFINITY_SPEED_BONUS = 0.2f;
-    private const float PLAYER_SPEED_ADVANTAGE_FACTOR = 0.5f;
-    private const float ENEMY_DEFENSE_FACTOR = 0.2f;
-    private const float PLAYER_DEFENSE_FACTOR = 0.5f;
-    private const float LOW_HEALTH_THRESHOLD = 0.3f;
+    private readonly GameConstants _constants = GameConstants.Default;
 
     /// <summary>
     /// Simulates a complete dungeon run with the given player and dungeon
@@ -105,7 +96,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates player stats with affinity bonus applied
     /// </summary>
-    private static PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, Item selectedItem = null)
+    private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, Item selectedItem = null)
     {
         var playerStats = player.CalculateStats();
 
@@ -125,9 +116,9 @@ public class CombatSimulator
         float affinityBonus = CalculateAffinityBonus(equippedItems, dungeon.Signature);
 
         // Apply affinity bonus to stats
-        playerStats.Attack *= (1 + affinityBonus * AFFINITY_ATTACK_BONUS);
-        playerStats.Defense *= (1 + affinityBonus * AFFINITY_DEFENSE_BONUS);
-        playerStats.Speed *= (1 + affinityBonus * AFFINITY_SPEED_BONUS);
+        playerStats.Attack *= (1 + affinityBonus * _constants.AffinityAttackBonus);
+        playerStats.Defense *= (1 + affinityBonus * _constants.AffinityDefenseBonus);
+        playerStats.Speed *= (1 + affinityBonus * _constants.AffinitySpeedBonus);
 
         return playerStats;
     }
@@ -148,12 +139,12 @@ public class CombatSimulator
 
         // Combat rounds
         bool combatEnded = false;
-        while (!combatEnded && rounds < MAX_COMBAT_ROUNDS)
+        while (!combatEnded && rounds < _constants.MaxCombatRounds)
         {
             rounds++;
 
             // Determine if player attacks first based on speed
-            bool playerFirst = playerStats.Speed >= enemy.Damage * PLAYER_SPEED_ADVANTAGE_FACTOR;
+            bool playerFirst = playerStats.Speed >= enemy.Damage * _constants.PlayerSpeedAdvantageFactor;
 
             // Process combat round
             var roundResult = ProcessCombatRound(playerFirst, playerStats, enemy, ref enemyHealth, ref currentHealth,
@@ -166,7 +157,7 @@ public class CombatSimulator
         }
 
         // Handle timeout case
-        if (rounds >= MAX_COMBAT_ROUNDS && enemyHealth > 0)
+        if (rounds >= _constants.MaxCombatRounds && enemyHealth > 0)
         {
             combatLog.Add("- Combat taking too long, moving on...");
         }
@@ -231,7 +222,7 @@ public class CombatSimulator
     {
         // Calculate player damage with variance (80-120% damage)
         float damageVariance = 0.8f + (float)_random.NextDouble() * 0.4f;
-        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * ENEMY_DEFENSE_FACTOR);
+        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * _constants.EnemyDefenseFactor);
         return (float)Math.Round(baseDamage * damageVariance);
     }
 
@@ -242,7 +233,7 @@ public class CombatSimulator
     {
         // Enemy damage with variance (90-110% damage)
         float enemyDamageVariance = 0.9f + (float)_random.NextDouble() * 0.2f;
-        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * PLAYER_DEFENSE_FACTOR);
+        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * _constants.PlayerDefenseFactor);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
 
@@ -271,10 +262,10 @@ public class CombatSimulator
     /// <summary>
     /// Handles health recovery between fights
     /// </summary>
-    private static void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats,
+    private void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats,
         ICollection<string> combatLog)
     {
-        float recovery = playerStats.MaxHealth * PLAYER_RECOVERY_PERCENT;
+        float recovery = playerStats.MaxHealth * _constants.PlayerRecoveryPercent;
         currentHealth = Math.Min(playerStats.MaxHealth, currentHealth + recovery);
         combatLog.Add($"Recovered {(int)recovery} HP. Current HP: {(int)currentHealth}");
     }
@@ -294,7 +285,7 @@ public class CombatSimulator
         }
 
         // Define casualties based on remaining health
-        bool casualties = data.Success && (data.CurrentHealth / data.PlayerStats.MaxHealth < LOW_HEALTH_THRESHOLD);
+        bool casualties = data.Success && (data.CurrentHealth / data.PlayerStats.MaxHealth < _constants.LowHealthThreshold);
         if (casualties)
         {
             data.CombatLog.Add("Barely survived with heavy injuries!");
@@ -358,7 +349,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private static float CalculateAffinityBonus(Dictionary<SlotType, Item> equippedItems, Signature dungeonSignature)
+    private float CalculateAffinityBonus(Dictionary<SlotType, Item> equippedItems, Signature dungeonSignature)
     {
         float affinitySum = 0;
         int itemCount = 0;
@@ -369,8 +360,8 @@ public class CombatSimulator
             try
             {
                 var similarity = item.Signature.CalculateSimilarityWith(dungeonSignature);
-                // Significantly increase the weight of each matching item to provide a stronger bonus
-                affinitySum += similarity * 2.5f;  // Increased from 1.5f to 2.5f
+                // Use a weight factor for the similarity
+                affinitySum += similarity * 2.5f;
                 itemCount++;
             }
             catch (ArgumentException)
