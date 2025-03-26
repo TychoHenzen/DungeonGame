@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Entities;
 
 /// <summary>
 /// Enhanced dungeon class with tile map support

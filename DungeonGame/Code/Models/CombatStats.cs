@@ -1,4 +1,4 @@
-namespace DungeonGame;
+namespace DungeonGame.Code.Models;
 
 /// <summary>
 /// Combat stats

@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Interfaces;
 
 /// <summary>
 /// Interface for classes that need a texture

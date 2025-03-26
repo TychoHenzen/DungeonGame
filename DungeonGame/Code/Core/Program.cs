@@ -1,10 +1,13 @@
-﻿namespace DungeonGame;
+﻿using System;
+
+namespace DungeonGame.Code.Core;
 
 /// <summary>
 /// Program entry point
 /// </summary>
-public static class Program
+file static class Program
 {
+    [STAThread]
     public static void Main()
     {
         using var game = new SignatureGame();

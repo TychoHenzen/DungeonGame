@@ -1,6 +1,6 @@
 using System;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Helpers;
 
 /// <summary>
 /// Helper class for signature-related operations

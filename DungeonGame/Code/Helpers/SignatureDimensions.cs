@@ -1,4 +1,4 @@
-namespace DungeonGame;
+namespace DungeonGame.Code.Helpers;
 
 /// <summary>
 /// Dimensions of the magic signature

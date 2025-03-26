@@ -1,9 +1,12 @@
 using System;
+using DungeonGame.Code.Core;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.States;
 
 /// <summary>
 /// Inventory state with drag-and-drop functionality
@@ -27,7 +30,7 @@ public class InventoryState : GameState, ITextureUser
     // Number of unlocked dungeon slots
     private int _unlockedDungeonSlots = 1;
     
-    public InventoryState(DungeonGame.SignatureGame game) : base(game) { }
+    public InventoryState(SignatureGame game) : base(game) { }
     
     public override void LoadContent()
     {

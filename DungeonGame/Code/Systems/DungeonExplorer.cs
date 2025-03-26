@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Models;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Systems;
 
 /// <summary>
 /// Handles automated dungeon exploration and combat

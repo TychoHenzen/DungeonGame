@@ -1,15 +1,16 @@
+using DungeonGame.Code.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.States;
 
 /// <summary>
 /// Main menu state
 /// </summary>
 public class MainMenuState : GameState
 {
-    public MainMenuState(DungeonGame.SignatureGame game) : base(game) { }
+    public MainMenuState(SignatureGame game) : base(game) { }
         
     public override void Update(GameTime gameTime)
     {

@@ -1,6 +1,7 @@
 using System;
+using DungeonGame.Code.Systems;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Entities;
 
 /// <summary>
 /// Enemy class

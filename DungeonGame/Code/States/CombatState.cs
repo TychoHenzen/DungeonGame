@@ -1,14 +1,15 @@
+using DungeonGame.Code.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.States;
 
 /// <summary>
 /// Combat state - for future detailed combat visualization
 /// </summary>
 public class CombatState : GameState
 {
-    public CombatState(DungeonGame.SignatureGame game) : base(game) { }
+    public CombatState(SignatureGame game) : base(game) { }
         
     public override void Draw(SpriteBatch spriteBatch, SpriteFont defaultFont, SpriteFont smallFont)
     {

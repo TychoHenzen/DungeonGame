@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using DungeonGame;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Systems;
 
 namespace DungeonGame.Tests
 {

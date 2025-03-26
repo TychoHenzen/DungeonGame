@@ -1,6 +1,7 @@
 using System;
+using DungeonGame.Code.Helpers;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Entities;
 
 /// <summary>
 /// Represents a magical signature with standardized dimensions

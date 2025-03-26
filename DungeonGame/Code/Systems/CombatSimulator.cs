@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Models;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Systems;
 
 /// <summary>
 /// Combat simulator that handles dungeon run simulations
@@ -329,23 +331,23 @@ public class CombatSimulator
     private List<Item> GenerateLoot(bool success, bool casualties, Dungeon dungeon, ICollection<string> combatLog)
     {
         var loot = new List<Item>();
-        if (success)
+        if (!success)
+            return loot;
+        
+        int lootCount = _random.Next(1, 4) + (casualties ? 0 : 2);
+        for (int i = 0; i < lootCount; i++)
         {
-            int lootCount = _random.Next(1, 4) + (casualties ? 0 : 2);
-            for (int i = 0; i < lootCount; i++)
+            if (dungeon.Signature != null)
             {
-                if (dungeon.Signature != null)
-                {
-                    loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));
-                }
-                else
-                {
-                    loot.Add(ItemGenerator.GenerateRandomItem());
-                }
+                loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));
             }
-
-            combatLog.Add($"Found {lootCount} items!");
+            else
+            {
+                loot.Add(ItemGenerator.GenerateRandomItem());
+            }
         }
+
+        combatLog.Add($"Found {lootCount} items!");
 
         return loot;
     }
@@ -362,23 +364,20 @@ public class CombatSimulator
         float affinitySum = 0;
         int itemCount = 0;
 
-        foreach (var item in equippedItems.Values)
+        foreach (var item in equippedItems.Values
+                     .Where(item => item is { Signature: not null }))
         {
-            if (item != null && item.Signature != null)
+            try
             {
-                try
-                {
-                    var itemSignature = new Signature(item.Signature);
-                    float similarity = itemSignature.CalculateSimilarityWith(dungeonSignature);
-                    // Significantly increase the weight of each matching item to provide a stronger bonus
-                    affinitySum += similarity * 2.5f;  // Increased from 1.5f to 2.5f
-                    itemCount++;
-                }
-                catch (ArgumentException)
-                {
-                    // Skip items with invalid signatures
-                    continue;
-                }
+                var itemSignature = new Signature(item.Signature);
+                float similarity = itemSignature.CalculateSimilarityWith(dungeonSignature);
+                // Significantly increase the weight of each matching item to provide a stronger bonus
+                affinitySum += similarity * 2.5f;  // Increased from 1.5f to 2.5f
+                itemCount++;
+            }
+            catch (ArgumentException)
+            {
+                // Skip items with invalid signatures
             }
         }
 

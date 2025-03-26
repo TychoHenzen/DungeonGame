@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Helpers;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Systems;
 
 /// <summary>
 /// Item generator

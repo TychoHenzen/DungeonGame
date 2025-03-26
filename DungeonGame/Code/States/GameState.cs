@@ -1,16 +1,17 @@
+using DungeonGame.Code.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.States;
 
 /// <summary>
 /// Base class for game states
 /// </summary>
 public abstract class GameState
 {
-    protected DungeonGame.SignatureGame Game;
+    protected SignatureGame Game;
         
-    public GameState(DungeonGame.SignatureGame game)
+    public GameState(SignatureGame game)
     {
         Game = game;
     }

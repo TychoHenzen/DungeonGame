@@ -1,6 +1,6 @@
 using System;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Entities;
 
 /// <summary>
 /// Item class

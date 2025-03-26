@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using DungeonGame.Code.Models;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Entities;
 
 /// <summary>
 /// Player class

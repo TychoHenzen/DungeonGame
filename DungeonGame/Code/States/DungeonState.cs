@@ -1,10 +1,13 @@
 using System;
 using System.Linq;
+using DungeonGame.Code.Core;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.States;
 
 /// <summary>
 /// Dungeon state

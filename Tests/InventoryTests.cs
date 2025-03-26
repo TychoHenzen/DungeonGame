@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using DungeonGame;
+using DungeonGame.Code.Entities;
 
 namespace DungeonGame.Tests
 {

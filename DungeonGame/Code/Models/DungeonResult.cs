@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using DungeonGame.Code.Entities;
 
-namespace DungeonGame;
+namespace DungeonGame.Code.Models;
 
 /// <summary>
 /// Dungeon result

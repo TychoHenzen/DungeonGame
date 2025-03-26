@@ -1,3 +1,5 @@
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.States;
 using Microsoft.Xna.Framework;
 using NUnit.Framework;
 

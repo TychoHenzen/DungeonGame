@@ -1,18 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Interfaces;
+using DungeonGame.Code.Models;
+using DungeonGame.Code.States;
+using DungeonGame.Code.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace DungeonGame
+namespace DungeonGame.Code.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// Main game class
     /// </summary>
     public class SignatureGame : Game
     {
-        private GraphicsDeviceManager _graphics;
+        private readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _uiTexture;
 
@@ -25,15 +31,14 @@ namespace DungeonGame
         private SpriteFont _smallFont;
 
         // Game data
-        protected Player _player;
-        protected Inventory _inventory;
-        protected Dungeon _currentDungeon;
-        protected Item[] _dungeonSlotItems;
-        private int _activeDungeonSlot = -1;
+        private Player _player;
+        private Inventory _inventory;
+        private Dungeon _currentDungeon;
+        private Item[] _dungeonSlotItems;
         private Item _selectedDungeonItem;
-        protected DungeonResult _dungeonResult;
-        protected bool _runningDungeon;
-        protected float _runTimer;
+        private DungeonResult _dungeonResult;
+        private bool _runningDungeon;
+        private float _runTimer;
 
         public SignatureGame()
         {
@@ -155,7 +160,6 @@ namespace DungeonGame
             if (selectedItem == null) return;
 
             _selectedDungeonItem = selectedItem;
-            _activeDungeonSlot = slotIndex;
             _currentDungeon = DungeonGenerator.GenerateDungeon(selectedItem.Signature);
             _runningDungeon = true;
             _runTimer = 0;

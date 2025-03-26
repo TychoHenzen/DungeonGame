@@ -1,3 +1,7 @@
+using DungeonGame.Code.Core;
+using DungeonGame.Code.Entities;
+using DungeonGame.Code.Models;
+using DungeonGame.Code.States;
 using Microsoft.Xna.Framework;
 
 namespace DungeonGame.Tests
