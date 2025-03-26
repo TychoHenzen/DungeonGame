@@ -5,7 +5,7 @@ namespace DungeonGame.Code.Helpers;
 /// </summary>
 public static class SignatureDimensions
 {
-    public static readonly string[] Names = 
+    public static readonly string[] Names =
     {
         "Temperature",
         "Hardness",
@@ -16,7 +16,7 @@ public static class SignatureDimensions
         "Volatility",
         "Resonance"
     };
-        
+
     public static readonly string[] LowDescriptors =
     {
         "Cold",
@@ -28,7 +28,7 @@ public static class SignatureDimensions
         "Stable",
         "Dissonant"
     };
-        
+
     public static readonly string[] HighDescriptors =
     {
         "Hot",

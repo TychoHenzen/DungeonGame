@@ -13,7 +13,7 @@ public static class SignatureHelper
     public static float CalculateDistance(float[] sig1, float[] sig2)
     {
         float sumSquaredDiffs = 0;
-        int length = Math.Min(sig1.Length, sig2.Length);
+        var length = Math.Min(sig1.Length, sig2.Length);
 
         for (int i = 0; i < length; i++)
         {
@@ -28,7 +28,7 @@ public static class SignatureHelper
     /// </summary>
     public static float CalculateSimilarity(float[] sig1, float[] sig2)
     {
-        float maxDistance = (float)Math.Sqrt(Math.Max(sig1.Length, sig2.Length) * 4); // Maximum possible distance in n-dimensional space with values -1 to 1
+        var maxDistance = (float)Math.Sqrt(Math.Max(sig1.Length, sig2.Length) * 4); // Maximum possible distance in n-dimensional space with values -1 to 1
         return 1 - Math.Min(CalculateDistance(sig1, sig2) / maxDistance, 1.0f);
     }
 }

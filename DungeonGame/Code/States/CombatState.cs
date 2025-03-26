@@ -7,10 +7,8 @@ namespace DungeonGame.Code.States;
 /// <summary>
 /// Combat state - for future detailed combat visualization
 /// </summary>
-public class CombatState : GameState
+public class CombatState(SignatureGame game) : GameState(game)
 {
-    public CombatState(SignatureGame game) : base(game) { }
-        
     public override void Draw(SpriteBatch spriteBatch, SpriteFont defaultFont, SpriteFont smallFont)
     {
         // This would be implemented when we add detailed combat visuals

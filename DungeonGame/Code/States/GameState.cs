@@ -7,15 +7,10 @@ namespace DungeonGame.Code.States;
 /// <summary>
 /// Base class for game states
 /// </summary>
-public abstract class GameState
+public abstract class GameState(SignatureGame game)
 {
-    protected SignatureGame Game;
-        
-    public GameState(SignatureGame game)
-    {
-        Game = game;
-    }
-        
+    protected readonly SignatureGame Game = game;
+
     public virtual void LoadContent() { }
     public virtual void Update(GameTime gameTime) { }
     public virtual void Draw(SpriteBatch spriteBatch, SpriteFont defaultFont, SpriteFont smallFont) { }

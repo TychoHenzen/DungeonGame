@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Models;
 
 namespace DungeonGame.Code.Systems;
@@ -114,8 +115,10 @@ public class CombatSimulator
         // Add selected item to the calculation if provided
         if (selectedItem != null)
         {
-            var tempItems = new Dictionary<string, Item>(equippedItems);
-            tempItems["selected"] = selectedItem;
+            var tempItems = new Dictionary<SlotType, Item>(equippedItems)
+            {
+                [SlotType.Selected] = selectedItem
+            };
             equippedItems = tempItems;
         }
         
@@ -355,7 +358,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private static float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, Signature dungeonSignature)
+    private static float CalculateAffinityBonus(Dictionary<SlotType, Item> equippedItems, Signature dungeonSignature)
     {
         float affinitySum = 0;
         int itemCount = 0;

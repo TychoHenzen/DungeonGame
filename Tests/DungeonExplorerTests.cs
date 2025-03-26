@@ -2,6 +2,7 @@ using System;
 using NUnit.Framework;
 using DungeonGame;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Systems;
 
 namespace DungeonGame.Tests
@@ -26,7 +27,7 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Sword",
                 Type = "Weapon",
-                Slot = "weapon",
+                Slot = SlotType.Weapon,
                 Signature = new Signature([ 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f ]),
                 Attack = 10,
                 Defense = 0,

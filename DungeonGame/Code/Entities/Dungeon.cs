@@ -11,7 +11,7 @@ public class Dungeon
     // Original properties
     public Signature Signature { get; set; }
     
-    public List<Tile> Tiles { get; set; }
+    public List<Tile> Tiles { get; }
     public List<Enemy> Enemies { get; set; }
     public int Difficulty { get; set; } // 1-3
     public int Length { get; set; } // In minutes (used for progress tracking)
@@ -26,7 +26,6 @@ public class Dungeon
     public int PlayerY { get; set; }
     public List<Enemy> DefeatedEnemies { get; set; }
     public List<Item> CollectedLoot { get; set; }
-    public bool IsExplored { get; set; }
     public string Name { get; set; }
 
     /// <summary>
@@ -34,10 +33,10 @@ public class Dungeon
     /// </summary>
     public Dungeon()
     {
-        Tiles = new List<Tile>();
-        Enemies = new List<Enemy>();
-        DefeatedEnemies = new List<Enemy>();
-        CollectedLoot = new List<Item>();
+        Tiles = [];
+        Enemies = [];
+        DefeatedEnemies = [];
+        CollectedLoot = [];
         
         // Default starting position in the center top
         PlayerX = 0;
@@ -55,11 +54,13 @@ public class Dungeon
     /// <summary>
     /// Checks if a tile is passable
     /// </summary>
-    public bool IsTilePassable(int x, int y)
+    private bool IsTilePassable(int x, int y)
     {
         if (x < 0 || x >= Width || y < 0 || y >= Height)
+        {
             return false;
-            
+        }
+
         return TileMap[x, y].IsPassable;
     }
     
@@ -68,17 +69,18 @@ public class Dungeon
     /// </summary>
     public bool MovePlayer(int deltaX, int deltaY)
     {
-        int newX = PlayerX + deltaX;
-        int newY = PlayerY + deltaY;
-        
-        if (IsTilePassable(newX, newY))
+        var newX = PlayerX + deltaX;
+        var newY = PlayerY + deltaY;
+
+        if (!IsTilePassable(newX, newY))
         {
-            PlayerX = newX;
-            PlayerY = newY;
-            return true;
+            return false;
         }
-        
-        return false;
+
+        PlayerX = newX;
+        PlayerY = newY;
+        return true;
+
     }
     
     /// <summary>
@@ -95,9 +97,9 @@ public class Dungeon
     public void SetStartingPosition()
     {
         // Find a passable tile near the top
-        for (int y = 0; y < Height; y++)
+        for (var y = 0; y < Height; y++)
         {
-            for (int x = 0; x < Width; x++)
+            for (var x = 0; x < Width; x++)
             {
                 if (TileMap[x, y].IsPassable && GetEnemyAt(x, y) == null)
                 {
@@ -113,69 +115,4 @@ public class Dungeon
         PlayerY = 0;
     }
     
-    /// <summary>
-    /// Adds an enemy to the defeated list and collects its loot
-    /// </summary>
-    public void DefeatEnemy(Enemy enemy)
-    {
-        if (!DefeatedEnemies.Contains(enemy))
-        {
-            DefeatedEnemies.Add(enemy);
-            
-            // Generate and collect loot
-            Item loot = enemy.GenerateLoot();
-            if (loot != null)
-            {
-                CollectedLoot.Add(loot);
-            }
-        }
-    }
-    
-    /// <summary>
-    /// Gets a list of possible moves from the current position
-    /// </summary>
-    public List<(int x, int y)> GetPossibleMoves()
-    {
-        var moves = new List<(int x, int y)>();
-        int[] dx = { 0, 1, 0, -1 };
-        int[] dy = { -1, 0, 1, 0 };
-        
-        for (int i = 0; i < 4; i++)
-        {
-            int newX = PlayerX + dx[i];
-            int newY = PlayerY + dy[i];
-            
-            if (IsTilePassable(newX, newY))
-            {
-                moves.Add((newX, newY));
-            }
-        }
-        
-        return moves;
-    }
-    
-    /// <summary>
-    /// Gets the current tile the player is standing on
-    /// </summary>
-    public Tile GetCurrentTile()
-    {
-        if (PlayerX >= 0 && PlayerX < Width && PlayerY >= 0 && PlayerY < Height)
-        {
-            return TileMap[PlayerX, PlayerY];
-        }
-        
-        return null;
-    }
-    
-    /// <summary>
-    /// Marks a point on the map as visited
-    /// </summary>
-    public void MarkVisited(int x, int y)
-    {
-        // This could be expanded to track fog of war/exploration
-        if (x >= 0 && x < Width && y >= 0 && y < Height)
-        {
-            // Future implementation could track visited tiles
-        }
-    }
 }

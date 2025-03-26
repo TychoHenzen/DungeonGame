@@ -34,12 +34,12 @@ public class Signature
     /// <summary>
     /// Creates a random signature
     /// </summary>
-    public static Signature CreateRandom(Random random = null)
+    public static Signature CreateRandom(Random random)
     {
         random ??= new Random();
         var values = new float[Dimensions];
         
-        for (int i = 0; i < Dimensions; i++)
+        for (var i = 0; i < Dimensions; i++)
         {
             values[i] = (float)(random.NextDouble() * 2 - 1);
         }
@@ -55,10 +55,10 @@ public class Signature
         random ??= new Random();
         var values = new float[Dimensions];
         
-        for (int i = 0; i < Dimensions; i++)
+        for (var i = 0; i < Dimensions; i++)
         {
             // Add random variance within the specified range
-            float delta = ((float)random.NextDouble() * 2 - 1) * variance;
+            var delta = ((float)random.NextDouble() * 2 - 1) * variance;
             values[i] = Math.Clamp(baseSignature[i] + delta, -1f, 1f);
         }
         
@@ -72,11 +72,12 @@ public class Signature
     {
         get
         {
-            if (index < 0 || index >= Dimensions)
+            if (index >= 0 && index < Dimensions)
             {
-                throw new IndexOutOfRangeException("Signature dimension index out of range");
+                return _values[index];
             }
-            return _values[index];
+
+            throw new IndexOutOfRangeException("Signature dimension index out of range");
         }
     }
 
@@ -104,25 +105,5 @@ public class Signature
     public float CalculateDistanceFrom(Signature other)
     {
         return SignatureHelper.CalculateDistance(_values, other._values);
-    }
-
-    /// <summary>
-    /// Gets a description of this signature
-    /// </summary>
-    public string GetDescription()
-    {
-        var description = "";
-        for (int i = 0; i < Dimensions; i++)
-        {
-            string dimensionDesc = _values[i] < 0.5f 
-                ? SignatureDimensions.LowDescriptors[i] 
-                : SignatureDimensions.HighDescriptors[i];
-            
-            if (description.Length > 0)
-                description += ", ";
-                
-            description += dimensionDesc;
-        }
-        return description;
     }
 }

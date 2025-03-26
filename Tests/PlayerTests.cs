@@ -2,6 +2,7 @@ using System;
 using NUnit.Framework;
 using DungeonGame;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 
 namespace DungeonGame.Tests
 {
@@ -24,7 +25,7 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Sword",
                 Type = "Sword",
-                Slot = "weapon",
+                Slot = SlotType.Weapon,
                 Power = 10
             };
             
@@ -32,7 +33,7 @@ namespace DungeonGame.Tests
             _player.EquipItem(weapon);
             
             // Assert
-            Assert.That(_player.GetEquippedItem("weapon"), Is.EqualTo(weapon));
+            Assert.That(_player.GetEquippedItem(SlotType.Weapon), Is.EqualTo(weapon));
         }
         
         [Test]
@@ -43,16 +44,16 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Sword",
                 Type = "Sword",
-                Slot = "weapon",
+                Slot = SlotType.Weapon,
                 Power = 10
             };
             _player.EquipItem(weapon);
             
             // Act
-            _player.UnequipItem("weapon");
+            _player.UnequipItem(SlotType.Weapon);
             
             // Assert
-            Assert.That(_player.GetEquippedItem("weapon"), Is.Null);
+            Assert.That(_player.GetEquippedItem(SlotType.Weapon), Is.Null);
         }
         
         [Test]
@@ -65,7 +66,7 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Sword",
                 Type = "Sword",
-                Slot = "weapon",
+                Slot = SlotType.Weapon,
                 Power = 10,
                 Signature = new Signature([ 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f ])
             };
@@ -79,8 +80,15 @@ namespace DungeonGame.Tests
             Assert.That(newStats.Defense, Is.GreaterThan(baseStats.Defense));
         }
         
-        [Test]
-        public void GetEquippedItems_ShouldReturnAllSlots()
+        [TestCase(SlotType.Weapon, true)]
+        [TestCase(SlotType.Shield, true)]
+        [TestCase(SlotType.Helmet, true)]
+        [TestCase(SlotType.Armor, true)]
+        [TestCase(SlotType.Amulet, true)]
+        [TestCase(SlotType.Ring, true)]
+        [TestCase(SlotType.Boots, true)]
+        [TestCase(SlotType.Selected, false)]
+        public void GetEquippedItems_ShouldReturnAllSlots(SlotType slot, bool isContained)
         {
             // Arrange - player already initialized
             
@@ -90,13 +98,7 @@ namespace DungeonGame.Tests
             // Assert
             Assert.That(items, Is.Not.Null);
             Assert.That(items.Count, Is.EqualTo(7)); // 7 equipment slots
-            Assert.That(items.ContainsKey("weapon"), Is.True);
-            Assert.That(items.ContainsKey("shield"), Is.True);
-            Assert.That(items.ContainsKey("helmet"), Is.True);
-            Assert.That(items.ContainsKey("armor"), Is.True);
-            Assert.That(items.ContainsKey("amulet"), Is.True);
-            Assert.That(items.ContainsKey("ring"), Is.True);
-            Assert.That(items.ContainsKey("boots"), Is.True);
+            Assert.That(items.ContainsKey(slot), Is.EqualTo(isContained));
         }
     }
 }

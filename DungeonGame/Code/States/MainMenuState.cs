@@ -8,10 +8,8 @@ namespace DungeonGame.Code.States;
 /// <summary>
 /// Main menu state
 /// </summary>
-public class MainMenuState : GameState
+public class MainMenuState(SignatureGame game) : GameState(game)
 {
-    public MainMenuState(SignatureGame game) : base(game) { }
-        
     public override void Update(GameTime gameTime)
     {
         // Check for input to transition to inventory

@@ -266,7 +266,7 @@ public static class DungeonGenerator
 
         // Generate enemy signature similar to tile
         var enemySig = Signature.CreateSimilar(tileSignature, 0.3f, _random);
-        
+
 
         // Generate adjective for enemy name
         string adjective = string.Empty;

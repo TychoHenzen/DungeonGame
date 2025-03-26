@@ -21,7 +21,6 @@ namespace DungeonGame.Tests
             Assert.That(item, Is.Not.Null);
             Assert.That(item.Name, Is.Not.Null.Or.Empty);
             Assert.That(item.Type, Is.Not.Null.Or.Empty);
-            Assert.That(item.Slot, Is.Not.Null.Or.Empty);
             Assert.That(item.Power, Is.GreaterThan(0));
             Assert.That(item.Signature, Is.Not.Null);
         }

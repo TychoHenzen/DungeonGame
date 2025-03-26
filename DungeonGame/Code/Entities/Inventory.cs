@@ -7,24 +7,25 @@ namespace DungeonGame.Code.Entities;
 /// </summary>
 public class Inventory
 {
-    public List<Item> Items { get; private set; }
-    public int Capacity { get; private set; }
+    public List<Item> Items { get; }
+    public int Capacity { get; }
         
     public Inventory(int capacity)
     {
-        Items = new List<Item>();
+        Items = [];
         Capacity = capacity;
     }
         
     public bool AddItem(Item item)
     {
-        if (Items.Count < Capacity)
+        if (Items.Count >= Capacity)
         {
-            Items.Add(item);
-            return true;
+            return false;
         }
-            
-        return false;
+
+        Items.Add(item);
+        return true;
+
     }
         
     public bool RemoveItem(Item item)

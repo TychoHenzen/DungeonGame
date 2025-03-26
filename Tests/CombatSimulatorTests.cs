@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using DungeonGame;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Systems;
 
 namespace DungeonGame.Tests
@@ -32,7 +33,7 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Sword",
                 Type = "Weapon",
-                Slot = "Weapon",
+                Slot = SlotType.Weapon,
                 Signature = new Signature([0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f]),
                 Attack = 10,
                 Defense = 0,
@@ -45,7 +46,7 @@ namespace DungeonGame.Tests
             {
                 Name = "Test Armor",
                 Type = "Armor",
-                Slot = "Armor",
+                Slot = SlotType.Armor,
                 Signature = new Signature([ 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f ]),
                 Attack = 0,
                 Defense = 10,

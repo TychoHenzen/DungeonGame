@@ -11,7 +11,7 @@ namespace DungeonGame.Code.Systems;
 /// </summary>
 public static class ItemGenerator
 {
-    private static readonly Random _random = new Random();
+    private static readonly Random _random = new();
 
     public static Item GenerateRandomItem()
     {
@@ -20,14 +20,14 @@ public static class ItemGenerator
         var itemType = itemTypes[_random.Next(itemTypes.Count)];
 
         // Generate signature
-        Signature signature = GenerateRandomSignature();
+        var signature = GenerateRandomSignature();
 
         // Generate name with adjectives
-        string name = GenerateItemName(itemType.Name, signature);
+        var name = GenerateItemName(itemType.Name, signature);
 
         // Calculate power based on signature intensity
-        float signatureIntensity = signature.GetValues().Sum(Math.Abs) / Signature.Dimensions;
-        int power = (int)(itemType.BasePower * (1 + signatureIntensity));
+        var signatureIntensity = signature.GetValues().Sum(Math.Abs) / Signature.Dimensions;
+        var power = (int)(itemType.BasePower * (1 + signatureIntensity));
 
         return new Item
         {

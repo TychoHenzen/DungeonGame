@@ -12,16 +12,12 @@ namespace DungeonGame.Code.States;
 /// <summary>
 /// Dungeon state
 /// </summary>
-public class DungeonState : GameState, ITextureUser
+public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
 {
     private Rectangle _statusPanel;
     private Rectangle _mapPanel;
     private Rectangle _combatLogPanel;
     private Texture2D _texture;
-
-    public DungeonState(SignatureGame game) : base(game)
-    {
-    }
 
     public override void LoadContent()
     {
