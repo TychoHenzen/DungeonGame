@@ -15,15 +15,15 @@ namespace DungeonGame
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _uiTexture;
-        
+
         // Game state
         private GameState _currentState;
         private Dictionary<GameStateType, GameState> _gameStates;
-        
+
         // Game resources
         private SpriteFont _defaultFont;
         private SpriteFont _smallFont;
-        
+
         // Game data
         protected Player _player;
         protected Inventory _inventory;
@@ -40,7 +40,7 @@ namespace DungeonGame
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            
+
             _graphics.PreferredBackBufferWidth = 1280;
             _graphics.PreferredBackBufferHeight = 720;
             Window.AllowUserResizing = true;
@@ -56,7 +56,7 @@ namespace DungeonGame
                 { GameStateType.Dungeon, new DungeonState(this) },
                 { GameStateType.Combat, new CombatState(this) }
             };
-            
+
             // Set initial state
             _currentState = _gameStates[GameStateType.MainMenu];
             _dungeonSlotItems = new Item[3]; // 3 slots that can be unlocked over time
@@ -64,7 +64,7 @@ namespace DungeonGame
             // Initialize player and inventory
             _player = new Player();
             _inventory = new Inventory(20); // 20 slots
-            
+
             // Generate starter items
             for (int i = 0; i < 3; i++)
             {
@@ -77,12 +77,12 @@ namespace DungeonGame
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            
+
             // Load fonts
             _defaultFont = Content.Load<SpriteFont>("Fonts/DefaultFont");
             _smallFont = Content.Load<SpriteFont>("Fonts/SmallFont");
-            
-            try 
+
+            try
             {
                 // Load UI texture
                 _uiTexture = Content.Load<Texture2D>("UIBox");
@@ -93,7 +93,7 @@ namespace DungeonGame
                 _uiTexture = new Texture2D(GraphicsDevice, 1, 1);
                 _uiTexture.SetData(new[] { Color.White });
             }
-            
+
             // Load state content
             foreach (var state in _gameStates.Values)
             {
@@ -108,18 +108,19 @@ namespace DungeonGame
         protected override void Update(GameTime gameTime)
         {
             // Exit on Escape key
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // Update current state
             _currentState.Update(gameTime);
-            
+
             // Update dungeon run if active
             if (_runningDungeon && _currentDungeon != null)
             {
                 // Increment timer to visualize exploration progress
                 _runTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                
+
                 // Simulate dungeon after a short time to allow for visualization
                 if (_runTimer >= 3.0f) // Wait 3 seconds before simulating
                 {
@@ -135,20 +136,20 @@ namespace DungeonGame
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-            
+
             // Draw current state
             _currentState.Draw(_spriteBatch, _defaultFont, _smallFont);
-            
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
-        
+
         public virtual void ChangeState(GameStateType newState)
         {
             _currentState = _gameStates[newState];
         }
-        
+
         public void StartDungeon(Item selectedItem, int slotIndex = 0)
         {
             if (selectedItem == null) return;
@@ -169,11 +170,11 @@ namespace DungeonGame
         private void CompleteDungeon()
         {
             _runningDungeon = false;
-            
+
             // Run the dungeon exploration simulation
             var dungeonExplorer = new DungeonExplorer(_currentDungeon, _player);
             _dungeonResult = dungeonExplorer.ExploreAutomatically();
-            
+
             // Add loot to inventory
             if (_dungeonResult.Success && _dungeonResult.Loot.Count > 0)
             {
@@ -182,20 +183,21 @@ namespace DungeonGame
                     _inventory.AddItem(item);
                 }
             }
-            
+
             if (_dungeonResult.Success && _dungeonSlotItems.Count(item => item != null) == 0)
             {
                 // Unlock the next slot after successful run
                 UnlockNextDungeonSlot();
             }
         }
-        
+
         public Item GetDungeonSlotItem(int slotIndex)
         {
             if (slotIndex >= 0 && slotIndex < _dungeonSlotItems.Length)
             {
                 return _dungeonSlotItems[slotIndex];
             }
+
             return null;
         }
 
@@ -214,7 +216,7 @@ namespace DungeonGame
                 _dungeonSlotItems[slotIndex] = null;
             }
         }
-        
+
         public void UnlockNextDungeonSlot()
         {
             var inventoryState = _gameStates[GameStateType.Inventory] as InventoryState;
@@ -229,7 +231,7 @@ namespace DungeonGame
         public bool IsRunningDungeon() => _runningDungeon;
         public float GetRunTimer() => _runTimer;
         public Item GetSelectedDungeonItem() => _selectedDungeonItem;
-        
+
         // Setters
         public void SetSelectedDungeonItem(Item item) => _selectedDungeonItem = item;
     }

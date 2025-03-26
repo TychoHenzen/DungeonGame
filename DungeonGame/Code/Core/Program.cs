@@ -7,7 +7,7 @@ public static class Program
 {
     public static void Main()
     {
-        using (var game = new SignatureGame())
-            game.Run();
+        using var game = new SignatureGame();
+        game.Run();
     }
 }

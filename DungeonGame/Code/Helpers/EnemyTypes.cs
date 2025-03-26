@@ -7,7 +7,7 @@ namespace DungeonGame;
 /// </summary>
 public static class EnemyTypes
 {
-    public static readonly Dictionary<string, EnemyTypeInfo> Types = new Dictionary<string, EnemyTypeInfo>
+    public static readonly Dictionary<string, EnemyTypeInfo> Types = new()
     {
         { "Goblin", new EnemyTypeInfo { Name = "Goblin", BaseHealth = 20, BaseDamage = 5 } },
         { "Skeleton", new EnemyTypeInfo { Name = "Skeleton", BaseHealth = 15, BaseDamage = 7 } },
