@@ -1,4 +1,4 @@
-namespace DungeonGame.Code.States;
+namespace DungeonGame.Code.Enums;
 
 /// <summary>
 /// Game state types

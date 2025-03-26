@@ -1,9 +1,6 @@
-using System;
-using NUnit.Framework;
-using DungeonGame;
 using DungeonGame.Code.Helpers;
 
-namespace DungeonGame.Tests
+namespace Tests
 {
     [TestFixture]
     public class SignatureHelperTests

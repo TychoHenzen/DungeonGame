@@ -2,10 +2,9 @@ using DungeonGame.Code.Entities;
 using DungeonGame.Code.States;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using NUnit.Framework;
 using Moq;
 
-namespace DungeonGame.Tests
+namespace Tests
 {
     [TestFixture]
     public class InventoryStateTests

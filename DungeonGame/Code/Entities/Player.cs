@@ -3,6 +3,7 @@ using System.Linq;
 using DungeonGame.Code.Enums;
 using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Models;
+using DungeonGame.Const;
 
 namespace DungeonGame.Code.Entities;
 
@@ -55,10 +56,10 @@ public class Player
         // Base stats
         var stats = new PlayerStats
         {
-            MaxHealth = GameConstants.Get.BasePlayerHealth,
-            Attack = GameConstants.Get.BasePlayerAttack,
-            Defense = GameConstants.Get.BasePlayerDefense,
-            Speed = GameConstants.Get.BasePlayerSpeed
+            MaxHealth = Constants.Game.BasePlayerHealth,
+            Attack = Constants.Game.BasePlayerAttack,
+            Defense = Constants.Game.BasePlayerDefense,
+            Speed = Constants.Game.BasePlayerSpeed
         };
 
         // Add equipment bonuses

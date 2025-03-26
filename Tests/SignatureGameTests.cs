@@ -1,9 +1,7 @@
 using DungeonGame.Code.Entities;
-using DungeonGame.Code.States;
-using Microsoft.Xna.Framework;
-using NUnit.Framework;
+using DungeonGame.Code.Enums;
 
-namespace DungeonGame.Tests
+namespace Tests
 {
     [TestFixture]
     public class SignatureGameTests

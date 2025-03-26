@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using DungeonGame.Code.Core;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

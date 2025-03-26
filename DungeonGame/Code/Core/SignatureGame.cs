@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Interfaces;
 using DungeonGame.Code.Models;
 using DungeonGame.Code.States;
 using DungeonGame.Code.Systems;
+using DungeonGame.Const;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -47,8 +49,8 @@ namespace DungeonGame.Code.Core
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            _graphics.PreferredBackBufferWidth = GameConstants.Get.DefaultScreenWidth;
-            _graphics.PreferredBackBufferHeight = GameConstants.Get.DefaultScreenHeight;
+            _graphics.PreferredBackBufferWidth = Constants.UI.DefaultScreenWidth;
+            _graphics.PreferredBackBufferHeight = Constants.UI.DefaultScreenHeight;
             Window.AllowUserResizing = true;
         }
 
@@ -65,11 +67,11 @@ namespace DungeonGame.Code.Core
 
             // Set initial state
             _currentState = _gameStates[GameStateType.MainMenu];
-            _dungeonSlotItems = new Item[GameConstants.Get.DefaultDungeonSlots]; 
+            _dungeonSlotItems = new Item[Constants.Dungeon.DefaultDungeonSlots]; 
 
             // Initialize player and inventory
             _player = new Player();
-            _inventory = new Inventory(GameConstants.Get.DefaultInventoryCapacity); 
+            _inventory = new Inventory(Constants.Game.DefaultInventoryCapacity); 
 
             // Generate starter items
             for (int i = 0; i < 3; i++)
@@ -128,7 +130,7 @@ namespace DungeonGame.Code.Core
                 _runTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                 // Simulate dungeon after a short time to allow for visualization
-                if (_runTimer >= GameConstants.Get.DungeonSimulationDelay)
+                if (_runTimer >= Constants.Dungeon.DungeonSimulationDelay)
                 {
                     CompleteDungeon();
                 }

@@ -1,10 +1,7 @@
-using System;
-using NUnit.Framework;
-using DungeonGame;
 using DungeonGame.Code.Entities;
 using DungeonGame.Code.Systems;
 
-namespace DungeonGame.Tests
+namespace Tests
 {
     [TestFixture]
     public class DungeonGeneratorTests

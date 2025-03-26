@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
 using DungeonGame.Code.Helpers;
+using DungeonGame.Const;
 
 namespace DungeonGame.Code.Systems;
 
@@ -40,7 +41,7 @@ public static class ItemGenerator
 
     public static Item GenerateItemWithSignature(Signature baseSignature)
     {
-        return GenerateItemWithSignature(baseSignature, GameConstants.Get.DefaultSignatureVariance);
+        return GenerateItemWithSignature(baseSignature, Constants.Game.DefaultSignatureVariance);
     }
 
     public static Item GenerateItemWithSignature(Signature baseSignature, float variance)
@@ -76,11 +77,11 @@ public static class ItemGenerator
 
         for (var i = 0; i < Signature.Dimensions; i++)
         {
-            if (signature[i] > GameConstants.Get.SignatureHighThreshold)
+            if (signature[i] > Constants.Game.SignatureHighThreshold)
             {
                 adjectives.Add(SignatureDimensions.HighDescriptors[i]);
             }
-            else if (signature[i] < GameConstants.Get.SignatureLowThreshold)
+            else if (signature[i] < Constants.Game.SignatureLowThreshold)
             {
                 adjectives.Add(SignatureDimensions.LowDescriptors[i]);
             }

@@ -1,10 +1,10 @@
 using DungeonGame.Code.Core;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Models;
-using DungeonGame.Code.States;
 using Microsoft.Xna.Framework;
 
-namespace DungeonGame.Tests
+namespace Tests
 {
     /// <summary>
     /// Test implementation of SignatureGame for unit testing

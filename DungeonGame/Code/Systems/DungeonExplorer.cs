@@ -5,6 +5,7 @@ using DungeonGame.Code.Entities;
 using DungeonGame.Code.Enums;
 using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Models;
+using DungeonGame.Const;
 
 namespace DungeonGame.Code.Systems;
 
@@ -51,7 +52,7 @@ public class DungeonExplorer
             $"Player stats - HP: {(int)_playerStats.MaxHealth}, ATK: {(int)_playerStats.Attack}, DEF: {(int)_playerStats.Defense}, SPD: {(int)_playerStats.Speed}");
 
         // Run the exploration algorithm
-        while (_isRunning && _explorationSteps < GameConstants.Get.MaxExplorationSteps)
+        while (_isRunning && _explorationSteps < Constants.Dungeon.MaxExplorationSteps)
         {
             _explorationSteps++;
 
@@ -119,9 +120,9 @@ public class DungeonExplorer
         float affinityBonus = CalculateAffinityBonus(_player.GetEquippedItems(), _dungeon.Signature);
 
         // Apply affinity bonus to stats
-        _playerStats.Attack *= (1 + affinityBonus * GameConstants.Get.AffinityAttackBonus);
-        _playerStats.Defense *= (1 + affinityBonus * GameConstants.Get.AffinityDefenseBonus);
-        _playerStats.Speed *= (1 + affinityBonus * GameConstants.Get.AffinitySpeedBonus);
+        _playerStats.Attack *= (1 + affinityBonus * Constants.Combat.AffinityAttackBonus);
+        _playerStats.Defense *= (1 + affinityBonus * Constants.Combat.AffinityDefenseBonus);
+        _playerStats.Speed *= (1 + affinityBonus * Constants.Combat.AffinitySpeedBonus);
 
         _explorationLog.Add($"Affinity bonus: {affinityBonus:P0}");
     }
@@ -145,7 +146,7 @@ public class DungeonExplorer
             rounds++;
 
             // Determine if player attacks first based on speed
-            bool playerFirst = _playerStats.Speed >= enemy.Damage * GameConstants.Get.PlayerSpeedAdvantageFactor;
+            bool playerFirst = _playerStats.Speed >= enemy.Damage * Constants.Combat.PlayerSpeedAdvantageFactor;
 
             // Player's first attack if going first
             if (playerFirst)
@@ -189,7 +190,7 @@ public class DungeonExplorer
             }
 
             // Prevent infinite loops
-            if (rounds > GameConstants.Get.MaxCombatRounds)
+            if (rounds > Constants.Combat.MaxCombatRounds)
             {
                 _explorationLog.Add("- Combat taking too long, moving on...");
                 break;
@@ -206,7 +207,7 @@ public class DungeonExplorer
     {
         // Calculate player damage with variance (80-120% damage)
         float damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
-        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * GameConstants.Get.EnemyDefenseFactor);
+        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * Constants.Combat.EnemyDefenseFactor);
         return (float)Math.Round(baseDamage * damageVariance);
     }
 
@@ -217,7 +218,7 @@ public class DungeonExplorer
     {
         // Enemy damage with variance (90-110% damage)
         float enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
-        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * GameConstants.Get.PlayerDefenseFactor);
+        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * Constants.Combat.PlayerDefenseFactor);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
 
@@ -246,7 +247,7 @@ public class DungeonExplorer
     /// </summary>
     private void RecoverBetweenMoves()
     {
-        float recovery = _playerStats.MaxHealth * GameConstants.Get.PlayerRecoveryPercent;
+        float recovery = _playerStats.MaxHealth * Constants.Combat.PlayerRecoveryPercent;
         _currentHealth = Math.Min(_playerStats.MaxHealth, _currentHealth + recovery);
     }
 
@@ -335,7 +336,7 @@ public class DungeonExplorer
         }
 
         // Define casualties based on remaining health
-        bool casualties = success && (_currentHealth / _playerStats.MaxHealth < GameConstants.Get.LowHealthThreshold);
+        bool casualties = success && (_currentHealth / _playerStats.MaxHealth < Constants.Combat.LowHealthThreshold);
         if (casualties)
         {
             _explorationLog.Add("Barely survived with heavy injuries!");
