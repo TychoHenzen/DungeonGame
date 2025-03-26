@@ -91,8 +91,7 @@ namespace DungeonGame.Tests
             Assert.That(result.Success, Is.True);
             Assert.That(result.Casualties, Is.False);
             Assert.That(result.Stats.EnemiesDefeated, Is.EqualTo(1));
-            //TODO: fix
-            Assert.That(result.PlayerStats.RemainingHealth, Is.EqualTo(0));
+            Assert.That(result.PlayerStats.RemainingHealth, Is.GreaterThan(0));
         }
 
         [Test]

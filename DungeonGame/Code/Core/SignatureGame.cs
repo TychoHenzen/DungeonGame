@@ -37,7 +37,7 @@ namespace DungeonGame.Code.Core
         protected Dungeon _currentDungeon;
         protected Item[] _dungeonSlotItems;
         private Item _selectedDungeonItem;
-        protected DungeonResult _dungeonResult;
+        protected DungeonResult? _dungeonResult;
         protected bool _runningDungeon;
         protected float _runTimer;
 
@@ -158,7 +158,10 @@ namespace DungeonGame.Code.Core
 
         public void StartDungeon(Item selectedItem, int slotIndex = 0)
         {
-            if (selectedItem == null) return;
+            if (selectedItem == null)
+            {
+                return;
+            }
 
             _selectedDungeonItem = selectedItem;
             _currentDungeon = DungeonGenerator.GenerateDungeon(selectedItem.Signature);

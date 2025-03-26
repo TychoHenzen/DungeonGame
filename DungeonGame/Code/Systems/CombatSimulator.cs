@@ -13,7 +13,6 @@ namespace DungeonGame.Code.Systems;
 /// </summary>
 public class CombatSimulator
 {
-
     /// <summary>
     /// Simulates a complete dungeon run with the given player and dungeon
     /// </summary>
@@ -100,7 +99,7 @@ public class CombatSimulator
 
         // Calculate signature affinity bonus
         var equippedItems = player.GetEquippedItems();
-        
+
         // Add selected item to the calculation if provided
         if (selectedItem != null)
         {
@@ -110,7 +109,7 @@ public class CombatSimulator
             };
             equippedItems = tempItems;
         }
-        
+
         float affinityBonus = CalculateAffinityBonus(equippedItems, dungeon.Signature);
 
         // Apply affinity bonus to stats
@@ -283,7 +282,8 @@ public class CombatSimulator
         }
 
         // Define casualties based on remaining health
-        bool casualties = data.Success && (data.CurrentHealth / data.PlayerStats.MaxHealth < GameConstants.Get.LowHealthThreshold);
+        bool casualties = data.Success &&
+                          (data.CurrentHealth / data.PlayerStats.MaxHealth < GameConstants.Get.LowHealthThreshold);
         if (casualties)
         {
             data.CombatLog.Add("Barely survived with heavy injuries!");
@@ -324,19 +324,15 @@ public class CombatSimulator
     {
         var loot = new List<Item>();
         if (!success)
-            return loot;
-        
-        int lootCount = Random.Shared.Next(1, 4) + (casualties ? 0 : 2);
-        for (int i = 0; i < lootCount; i++)
         {
-            if (dungeon.Signature != null)
-            {
-                loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));
-            }
-            else
-            {
-                loot.Add(ItemGenerator.GenerateRandomItem());
-            }
+            return loot;
+        }
+
+        var lootCount = Random.Shared.Next(GameConstants.Get.MinLootCount,
+            GameConstants.Get.MaxLootCount) + (casualties ? 0 : 2);
+        for (var i = 0; i < lootCount; i++)
+        {
+            loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));
         }
 
         combatLog.Add($"Found {lootCount} items!");
@@ -355,21 +351,14 @@ public class CombatSimulator
         foreach (var item in equippedItems.Values
                      .Where(item => item is not null))
         {
-            try
-            {
-                var similarity = item.Signature.CalculateSimilarityWith(dungeonSignature);
-                // Use a weight factor for the similarity
-                affinitySum += similarity * 2.5f;
-                itemCount++;
-            }
-            catch (ArgumentException)
-            {
-                // Skip items with invalid signatures
-            }
+            var similarity = item.Signature.CalculateSimilarityWith(dungeonSignature);
+            // Use a weight factor for the similarity
+            affinitySum += similarity * 2.5f;
+            itemCount++;
         }
 
-        // Apply a minimum bonus to ensure test passes
-        float result = itemCount > 0 ? affinitySum / itemCount : 0;
-        return result;
+        return itemCount > 0
+            ? affinitySum / itemCount
+            : 0;
     }
 }
