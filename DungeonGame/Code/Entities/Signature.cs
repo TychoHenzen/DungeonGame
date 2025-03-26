@@ -6,7 +6,7 @@ namespace DungeonGame.Code.Entities;
 /// <summary>
 /// Represents a magical signature with standardized dimensions
 /// </summary>
-public class Signature
+public sealed class Signature
 {
     private readonly float[] _values;
 
@@ -34,14 +34,13 @@ public class Signature
     /// <summary>
     /// Creates a random signature
     /// </summary>
-    public static Signature CreateRandom(Random random)
+    public static Signature CreateRandom()
     {
-        random ??= new Random();
         var values = new float[Dimensions];
         
         for (var i = 0; i < Dimensions; i++)
         {
-            values[i] = (float)(random.NextDouble() * 2 - 1);
+            values[i] = (float)(Random.Shared.NextDouble() * 2 - 1);
         }
         
         return new Signature(values);
@@ -50,15 +49,14 @@ public class Signature
     /// <summary>
     /// Creates a signature similar to the base signature with some variance
     /// </summary>
-    public static Signature CreateSimilar(Signature baseSignature, float variance, Random random = null)
+    public static Signature CreateSimilar(Signature baseSignature, float variance)
     {
-        random ??= new Random();
         var values = new float[Dimensions];
         
         for (var i = 0; i < Dimensions; i++)
         {
             // Add random variance within the specified range
-            var delta = ((float)random.NextDouble() * 2 - 1) * variance;
+            var delta = ((float)Random.Shared.NextDouble() * 2 - 1) * variance;
             values[i] = Math.Clamp(baseSignature[i] + delta, -1f, 1f);
         }
         

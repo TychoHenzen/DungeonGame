@@ -24,8 +24,6 @@ public class Player
         { SlotType.Boots, null }
     };
 
-    private static readonly GameConstants _constants = GameConstants.Default;
-
     public void EquipItem(Item item)
     {
         if (_equippedItems.ContainsKey(item.Slot))
@@ -57,10 +55,10 @@ public class Player
         // Base stats
         var stats = new PlayerStats
         {
-            MaxHealth = _constants.PlayerDefenseFactor,
-            Attack = _constants.BasePlayerAttack,
-            Defense = _constants.BasePlayerDefense,
-            Speed = _constants.BasePlayerSpeed
+            MaxHealth = GameConstants.Get.PlayerDefenseFactor,
+            Attack = GameConstants.Get.BasePlayerAttack,
+            Defense = GameConstants.Get.BasePlayerDefense,
+            Speed = GameConstants.Get.BasePlayerSpeed
         };
 
         // Add equipment bonuses

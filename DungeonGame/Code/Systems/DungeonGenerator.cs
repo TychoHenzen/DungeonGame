@@ -11,21 +11,18 @@ namespace DungeonGame.Code.Systems;
 /// </summary>
 public static class DungeonGenerator
 {
-    private static readonly Random _random = new();
-    private static readonly GameConstants _constants = GameConstants.Default;
-
     public static Dungeon GenerateDungeon(Signature itemSignature)
     {
         // Generate dungeon signature similar to item
-        Signature dungeonSignature = ItemGenerator.GenerateSimilarSignature(itemSignature, 0.2f);
+        var dungeonSignature = Signature.CreateSimilar(itemSignature, 0.2f);
 
         var dungeon = new Dungeon
         {
             Signature = dungeonSignature,
-            Difficulty = _random.Next(1, 4), // 1-3
-            Length = _random.Next(3, 6), // 3-5 minutes (we'll keep this for progress tracking)
-            Width = _constants.DefaultMapWidth,
-            Height = _constants.DefaultMapHeight
+            Difficulty = Random.Shared.Next(1, 4), // 1-3
+            Length = Random.Shared.Next(3, 6), // 3-5 minutes (we'll keep this for progress tracking)
+            Width = GameConstants.Get.DefaultMapWidth,
+            Height = GameConstants.Get.DefaultMapHeight
         };
 
         // Generate tile map using Perlin-like noise based on signature
@@ -93,7 +90,7 @@ public static class DungeonGenerator
             for (int y = 0; y < height; y++)
             {
                 // Generate a smooth noise value between -1 and 1
-                noise[x, y] = (float)(_random.NextDouble() * 2 - 1);
+                noise[x, y] = (float)(Random.Shared.NextDouble() * 2 - 1);
             }
         }
 
@@ -191,9 +188,9 @@ public static class DungeonGenerator
             dungeon.TileMap[pathX, y].Type = "Stone";
 
             // Randomly adjust path to make it more natural
-            if (_random.Next(100) < 40 && y < dungeon.Height - 1)
+            if (Random.Shared.Next(100) < 40 && y < dungeon.Height - 1)
             {
-                pathX = Math.Clamp(pathX + _random.Next(-1, 2), 1, dungeon.Width - 2);
+                pathX = Math.Clamp(pathX + Random.Shared.Next(-1, 2), 1, dungeon.Width - 2);
             }
         }
     }
@@ -221,7 +218,7 @@ public static class DungeonGenerator
         }
 
         // Shuffle the positions
-        openPositions = openPositions.OrderBy(_ => _random.Next()).ToList();
+        openPositions = openPositions.OrderBy(_ => Random.Shared.Next()).ToList();
 
         // Create enemies and place them on the map
         for (int i = 0; i < Math.Min(enemyCount, openPositions.Count); i++)
@@ -245,7 +242,7 @@ public static class DungeonGenerator
     {
         // Get random enemy type
         var enemyTypes = EnemyTypes.Types.Values.ToList();
-        var enemyType = enemyTypes[_random.Next(enemyTypes.Count)];
+        var enemyType = enemyTypes[Random.Shared.Next(enemyTypes.Count)];
 
         // Create Signature objects
         Signature tileSignature;
@@ -259,12 +256,12 @@ public static class DungeonGenerator
         catch (ArgumentException)
         {
             // Fallback to random signatures if invalid
-            tileSignature = Signature.CreateRandom(_random);
-            dungeonSig = Signature.CreateRandom(_random);
+            tileSignature = Signature.CreateRandom();
+            dungeonSig = Signature.CreateRandom();
         }
 
         // Generate enemy signature similar to tile
-        var enemySig = Signature.CreateSimilar(tileSignature, 0.3f, _random);
+        var enemySig = Signature.CreateSimilar(tileSignature, 0.3f);
 
 
         // Generate adjective for enemy name

@@ -13,11 +13,9 @@ namespace DungeonGame.Code.Systems;
 /// </summary>
 public class DungeonExplorer
 {
-    private readonly Random _random = new();
     private readonly Dungeon _dungeon;
     private readonly Player _player;
     private readonly List<string> _explorationLog;
-    private readonly GameConstants _constants;
     private float _currentHealth;
     private PlayerStats _playerStats;
 
@@ -29,7 +27,6 @@ public class DungeonExplorer
         _dungeon = dungeon;
         _player = player;
         _explorationLog = new List<string>();
-        _constants = GameConstants.Default;
         _playerStats = _player.CalculateStats();
         _currentHealth = _playerStats.MaxHealth;
     }
@@ -54,7 +51,7 @@ public class DungeonExplorer
             $"Player stats - HP: {(int)_playerStats.MaxHealth}, ATK: {(int)_playerStats.Attack}, DEF: {(int)_playerStats.Defense}, SPD: {(int)_playerStats.Speed}");
 
         // Run the exploration algorithm
-        while (_isRunning && _explorationSteps < _constants.MaxExplorationSteps)
+        while (_isRunning && _explorationSteps < GameConstants.Get.MaxExplorationSteps)
         {
             _explorationSteps++;
 
@@ -122,9 +119,9 @@ public class DungeonExplorer
         float affinityBonus = CalculateAffinityBonus(_player.GetEquippedItems(), _dungeon.Signature);
 
         // Apply affinity bonus to stats
-        _playerStats.Attack *= (1 + affinityBonus * _constants.AffinityAttackBonus);
-        _playerStats.Defense *= (1 + affinityBonus * _constants.AffinityDefenseBonus);
-        _playerStats.Speed *= (1 + affinityBonus * _constants.AffinitySpeedBonus);
+        _playerStats.Attack *= (1 + affinityBonus * GameConstants.Get.AffinityAttackBonus);
+        _playerStats.Defense *= (1 + affinityBonus * GameConstants.Get.AffinityDefenseBonus);
+        _playerStats.Speed *= (1 + affinityBonus * GameConstants.Get.AffinitySpeedBonus);
 
         _explorationLog.Add($"Affinity bonus: {affinityBonus:P0}");
     }
@@ -148,7 +145,7 @@ public class DungeonExplorer
             rounds++;
 
             // Determine if player attacks first based on speed
-            bool playerFirst = _playerStats.Speed >= enemy.Damage * _constants.PlayerSpeedAdvantageFactor;
+            bool playerFirst = _playerStats.Speed >= enemy.Damage * GameConstants.Get.PlayerSpeedAdvantageFactor;
 
             // Player's first attack if going first
             if (playerFirst)
@@ -192,7 +189,7 @@ public class DungeonExplorer
             }
 
             // Prevent infinite loops
-            if (rounds > _constants.MaxCombatRounds)
+            if (rounds > GameConstants.Get.MaxCombatRounds)
             {
                 _explorationLog.Add("- Combat taking too long, moving on...");
                 break;
@@ -208,8 +205,8 @@ public class DungeonExplorer
     private float CalculatePlayerDamage(PlayerStats playerStats, Enemy enemy)
     {
         // Calculate player damage with variance (80-120% damage)
-        float damageVariance = 0.8f + (float)_random.NextDouble() * 0.4f;
-        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * _constants.EnemyDefenseFactor);
+        float damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
+        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * GameConstants.Get.EnemyDefenseFactor);
         return (float)Math.Round(baseDamage * damageVariance);
     }
 
@@ -219,8 +216,8 @@ public class DungeonExplorer
     private float CalculateEnemyDamage(Enemy enemy, PlayerStats playerStats)
     {
         // Enemy damage with variance (90-110% damage)
-        float enemyDamageVariance = 0.9f + (float)_random.NextDouble() * 0.2f;
-        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * _constants.PlayerDefenseFactor);
+        float enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
+        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * GameConstants.Get.PlayerDefenseFactor);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
 
@@ -249,7 +246,7 @@ public class DungeonExplorer
     /// </summary>
     private void RecoverBetweenMoves()
     {
-        float recovery = _playerStats.MaxHealth * _constants.PlayerRecoveryPercent;
+        float recovery = _playerStats.MaxHealth * GameConstants.Get.PlayerRecoveryPercent;
         _currentHealth = Math.Min(_playerStats.MaxHealth, _currentHealth + recovery);
     }
 
@@ -298,7 +295,7 @@ public class DungeonExplorer
             var directions = new List<(int dx, int dy)>
             {
                 (1, 0), (-1, 0), (0, 1), (0, -1)
-            }.OrderBy(_ => _random.Next()).ToList();
+            }.OrderBy(_ => Random.Shared.Next()).ToList();
 
             foreach (var (dx, dy) in directions)
             {
@@ -338,7 +335,7 @@ public class DungeonExplorer
         }
 
         // Define casualties based on remaining health
-        bool casualties = success && (_currentHealth / _playerStats.MaxHealth < _constants.LowHealthThreshold);
+        bool casualties = success && (_currentHealth / _playerStats.MaxHealth < GameConstants.Get.LowHealthThreshold);
         if (casualties)
         {
             _explorationLog.Add("Barely survived with heavy injuries!");
@@ -390,7 +387,7 @@ public class DungeonExplorer
         int itemCount = 0;
 
         foreach (var item in equippedItems.Values
-                     .Where(item => item is { Signature: not null }))
+                     .Where(item => item is not null))
         {
             try
             {

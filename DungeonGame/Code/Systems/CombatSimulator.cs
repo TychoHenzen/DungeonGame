@@ -13,8 +13,6 @@ namespace DungeonGame.Code.Systems;
 /// </summary>
 public class CombatSimulator
 {
-    private readonly Random _random = new();
-    private readonly GameConstants _constants = GameConstants.Default;
 
     /// <summary>
     /// Simulates a complete dungeon run with the given player and dungeon
@@ -116,9 +114,9 @@ public class CombatSimulator
         float affinityBonus = CalculateAffinityBonus(equippedItems, dungeon.Signature);
 
         // Apply affinity bonus to stats
-        playerStats.Attack *= (1 + affinityBonus * _constants.AffinityAttackBonus);
-        playerStats.Defense *= (1 + affinityBonus * _constants.AffinityDefenseBonus);
-        playerStats.Speed *= (1 + affinityBonus * _constants.AffinitySpeedBonus);
+        playerStats.Attack *= (1 + affinityBonus * GameConstants.Get.AffinityAttackBonus);
+        playerStats.Defense *= (1 + affinityBonus * GameConstants.Get.AffinityDefenseBonus);
+        playerStats.Speed *= (1 + affinityBonus * GameConstants.Get.AffinitySpeedBonus);
 
         return playerStats;
     }
@@ -139,12 +137,12 @@ public class CombatSimulator
 
         // Combat rounds
         bool combatEnded = false;
-        while (!combatEnded && rounds < _constants.MaxCombatRounds)
+        while (!combatEnded && rounds < GameConstants.Get.MaxCombatRounds)
         {
             rounds++;
 
             // Determine if player attacks first based on speed
-            bool playerFirst = playerStats.Speed >= enemy.Damage * _constants.PlayerSpeedAdvantageFactor;
+            bool playerFirst = playerStats.Speed >= enemy.Damage * GameConstants.Get.PlayerSpeedAdvantageFactor;
 
             // Process combat round
             var roundResult = ProcessCombatRound(playerFirst, playerStats, enemy, ref enemyHealth, ref currentHealth,
@@ -157,7 +155,7 @@ public class CombatSimulator
         }
 
         // Handle timeout case
-        if (rounds >= _constants.MaxCombatRounds && enemyHealth > 0)
+        if (rounds >= GameConstants.Get.MaxCombatRounds && enemyHealth > 0)
         {
             combatLog.Add("- Combat taking too long, moving on...");
         }
@@ -221,8 +219,8 @@ public class CombatSimulator
     private float CalculatePlayerDamage(PlayerStats playerStats, Enemy enemy)
     {
         // Calculate player damage with variance (80-120% damage)
-        float damageVariance = 0.8f + (float)_random.NextDouble() * 0.4f;
-        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * _constants.EnemyDefenseFactor);
+        float damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
+        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * GameConstants.Get.EnemyDefenseFactor);
         return (float)Math.Round(baseDamage * damageVariance);
     }
 
@@ -232,8 +230,8 @@ public class CombatSimulator
     private float CalculateEnemyDamage(Enemy enemy, PlayerStats playerStats)
     {
         // Enemy damage with variance (90-110% damage)
-        float enemyDamageVariance = 0.9f + (float)_random.NextDouble() * 0.2f;
-        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * _constants.PlayerDefenseFactor);
+        float enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
+        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * GameConstants.Get.PlayerDefenseFactor);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
 
@@ -265,7 +263,7 @@ public class CombatSimulator
     private void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats,
         ICollection<string> combatLog)
     {
-        float recovery = playerStats.MaxHealth * _constants.PlayerRecoveryPercent;
+        float recovery = playerStats.MaxHealth * GameConstants.Get.PlayerRecoveryPercent;
         currentHealth = Math.Min(playerStats.MaxHealth, currentHealth + recovery);
         combatLog.Add($"Recovered {(int)recovery} HP. Current HP: {(int)currentHealth}");
     }
@@ -285,7 +283,7 @@ public class CombatSimulator
         }
 
         // Define casualties based on remaining health
-        bool casualties = data.Success && (data.CurrentHealth / data.PlayerStats.MaxHealth < _constants.LowHealthThreshold);
+        bool casualties = data.Success && (data.CurrentHealth / data.PlayerStats.MaxHealth < GameConstants.Get.LowHealthThreshold);
         if (casualties)
         {
             data.CombatLog.Add("Barely survived with heavy injuries!");
@@ -328,7 +326,7 @@ public class CombatSimulator
         if (!success)
             return loot;
         
-        int lootCount = _random.Next(1, 4) + (casualties ? 0 : 2);
+        int lootCount = Random.Shared.Next(1, 4) + (casualties ? 0 : 2);
         for (int i = 0; i < lootCount; i++)
         {
             if (dungeon.Signature != null)
@@ -355,7 +353,7 @@ public class CombatSimulator
         int itemCount = 0;
 
         foreach (var item in equippedItems.Values
-                     .Where(item => item is { Signature: not null }))
+                     .Where(item => item is not null))
         {
             try
             {

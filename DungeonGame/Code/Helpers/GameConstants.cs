@@ -42,7 +42,7 @@ public sealed class GameConstants
     public int DefaultDungeonSlots { get; init; } = 3;
     public int InitialUnlockedDungeonSlots { get; init; } = 1;
 
-    public static GameConstants Default => Load("GameConstants.json");
+    public static GameConstants Get { get; } = Load("GameConstants.json");
 
     /// <summary>
     /// Loads constants from a file, or returns defaults if file doesn't exist

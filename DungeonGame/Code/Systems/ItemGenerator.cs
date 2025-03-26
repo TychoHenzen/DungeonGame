@@ -11,16 +11,15 @@ namespace DungeonGame.Code.Systems;
 /// </summary>
 public static class ItemGenerator
 {
-    private static readonly Random _random = new();
 
     public static Item GenerateRandomItem()
     {
         // Get random item type
         var itemTypes = ItemTypes.Types.Values.ToList();
-        var itemType = itemTypes[_random.Next(itemTypes.Count)];
+        var itemType = itemTypes[Random.Shared.Next(itemTypes.Count)];
 
         // Generate signature
-        var signature = GenerateRandomSignature();
+        var signature = Signature.CreateRandom();
 
         // Generate name with adjectives
         var name = GenerateItemName(itemType.Name, signature);
@@ -43,10 +42,10 @@ public static class ItemGenerator
     {
         // Get random item type
         var itemTypes = ItemTypes.Types.Values.ToList();
-        var itemType = itemTypes[_random.Next(itemTypes.Count)];
+        var itemType = itemTypes[Random.Shared.Next(itemTypes.Count)];
 
         // Generate similar signature
-        Signature signature = GenerateSimilarSignature(baseSignature, variance);
+        var signature = Signature.CreateSimilar(baseSignature, variance);
 
         // Generate name with adjectives
         string name = GenerateItemName(itemType.Name, signature);
@@ -88,26 +87,8 @@ public static class ItemGenerator
             return itemType;
         }
 
-        var adjectiveCount = Math.Min(adjectives.Count, _random.Next(1, 3));
-        var selectedAdjectives = adjectives.OrderBy(x => _random.Next()).Take(adjectiveCount).ToList();
+        var adjectiveCount = Math.Min(adjectives.Count, Random.Shared.Next(1, 3));
+        var selectedAdjectives = adjectives.OrderBy(x => Random.Shared.Next()).Take(adjectiveCount).ToList();
         return string.Join(" ", selectedAdjectives) + " " + itemType;
-    }
-
-    private static Signature GenerateRandomSignature()
-    {
-        return Signature.CreateRandom(_random);
-    }
-
-    public static Signature GenerateSimilarSignature(Signature baseSignature, float variance)
-    {
-        try
-        {
-            return Signature.CreateSimilar(baseSignature, variance, _random);
-        }
-        catch (ArgumentException)
-        {
-            // Fallback for invalid signatures
-            return GenerateRandomSignature();
-        }
     }
 }
