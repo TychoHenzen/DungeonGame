@@ -471,11 +471,11 @@ public class InventoryState : GameState, ITextureUser
         }
     }
     
-    private void DrawSignatureIndicator(SpriteBatch spriteBatch, float[] signature, Vector2 position, float width, float height)
+    private void DrawSignatureIndicator(SpriteBatch spriteBatch, Signature signature, Vector2 position, float width, float height)
     {
         // Draw a bar for each dimension
-        float barWidth = width / signature.Length;
-        for (int i = 0; i < signature.Length; i++)
+        float barWidth = width / Signature.Dimensions;
+        for (int i = 0; i < Signature.Dimensions; i++)
         {
             // Map -1 to 1 range to 0 to 1 for display
             float normalizedValue = (signature[i] + 1) / 2;

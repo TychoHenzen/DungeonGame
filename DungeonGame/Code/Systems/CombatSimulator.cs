@@ -355,12 +355,8 @@ public class CombatSimulator
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private static float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, float[] dungeonSignatureValues)
+    private static float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, Signature dungeonSignature)
     {
-        if (dungeonSignatureValues == null)
-            return 0;
-            
-        var dungeonSignature = new Signature(dungeonSignatureValues);
         float affinitySum = 0;
         int itemCount = 0;
 
@@ -369,8 +365,7 @@ public class CombatSimulator
         {
             try
             {
-                var itemSignature = new Signature(item.Signature);
-                float similarity = itemSignature.CalculateSimilarityWith(dungeonSignature);
+                var similarity = item.Signature.CalculateSimilarityWith(dungeonSignature);
                 // Significantly increase the weight of each matching item to provide a stronger bonus
                 affinitySum += similarity * 2.5f;  // Increased from 1.5f to 2.5f
                 itemCount++;

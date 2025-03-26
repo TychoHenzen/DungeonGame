@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Models;
 
 namespace DungeonGame.Code.Entities;
@@ -9,6 +10,7 @@ namespace DungeonGame.Code.Entities;
 public class Player
 {
     private Dictionary<string, Item> _equippedItems;
+    private static readonly GameConstants _constants = GameConstants.Default;
         
     public Player()
     {
@@ -57,10 +59,10 @@ public class Player
         // Base stats
         var stats = new PlayerStats
         {
-            MaxHealth = 100,
-            Attack = 10,
-            Defense = 5,
-            Speed = 10
+            MaxHealth = _constants.PlayerDefenseFactor,
+            Attack = _constants.BasePlayerAttack,
+            Defense = _constants.BasePlayerDefense,
+            Speed = _constants.BasePlayerSpeed
         };
             
         // Add equipment bonuses

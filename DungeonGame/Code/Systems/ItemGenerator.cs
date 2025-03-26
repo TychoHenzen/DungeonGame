@@ -12,23 +12,23 @@ namespace DungeonGame.Code.Systems;
 public static class ItemGenerator
 {
     private static readonly Random _random = new Random();
-        
+
     public static Item GenerateRandomItem()
     {
         // Get random item type
         var itemTypes = ItemTypes.Types.Values.ToList();
         var itemType = itemTypes[_random.Next(itemTypes.Count)];
-            
+
         // Generate signature
-        float[] signature = GenerateRandomSignature();
-            
+        Signature signature = GenerateRandomSignature();
+
         // Generate name with adjectives
         string name = GenerateItemName(itemType.Name, signature);
-            
+
         // Calculate power based on signature intensity
-        float signatureIntensity = signature.Sum(v => Math.Abs(v)) / signature.Length;
+        float signatureIntensity = signature.GetValues().Sum(Math.Abs) / Signature.Dimensions;
         int power = (int)(itemType.BasePower * (1 + signatureIntensity));
-            
+
         return new Item
         {
             Name = name,
@@ -38,23 +38,23 @@ public static class ItemGenerator
             Signature = signature
         };
     }
-        
-    public static Item GenerateItemWithSignature(float[] baseSignature, float variance = 0.3f)
+
+    public static Item GenerateItemWithSignature(Signature baseSignature, float variance = 0.3f)
     {
         // Get random item type
         var itemTypes = ItemTypes.Types.Values.ToList();
         var itemType = itemTypes[_random.Next(itemTypes.Count)];
-            
+
         // Generate similar signature
-        float[] signature = GenerateSimilarSignature(baseSignature, variance);
-            
+        Signature signature = GenerateSimilarSignature(baseSignature, variance);
+
         // Generate name with adjectives
         string name = GenerateItemName(itemType.Name, signature);
-            
+
         // Calculate power based on signature intensity
-        float signatureIntensity = signature.Sum(v => Math.Abs(v)) / signature.Length;
+        float signatureIntensity = signature.GetValues().Sum(Math.Abs) / Signature.Dimensions;
         int power = (int)(itemType.BasePower * (1 + signatureIntensity));
-            
+
         return new Item
         {
             Name = name,
@@ -64,13 +64,13 @@ public static class ItemGenerator
             Signature = signature
         };
     }
-        
-    private static string GenerateItemName(string itemType, float[] signature)
+
+    private static string GenerateItemName(string itemType, Signature signature)
     {
         // Generate adjectives based on signature
         var adjectives = new List<string>();
-            
-        for (int i = 0; i < signature.Length; i++)
+
+        for (var i = 0; i < Signature.Dimensions; i++)
         {
             if (signature[i] > 0.5f)
             {
@@ -81,31 +81,28 @@ public static class ItemGenerator
                 adjectives.Add(SignatureDimensions.LowDescriptors[i]);
             }
         }
-            
+
         // Take 1-2 random adjectives for the name
-        if (adjectives.Count > 0)
+        if (adjectives.Count != 0)
         {
-            int adjectiveCount = Math.Min(adjectives.Count, _random.Next(1, 3));
-            var selectedAdjectives = adjectives.OrderBy(x => _random.Next()).Take(adjectiveCount).ToList();
-            return string.Join(" ", selectedAdjectives) + " " + itemType;
+            return itemType;
         }
-            
-        return itemType;
-    }
-        
-    private static float[] GenerateRandomSignature()
-    {
-        var signature = Signature.CreateRandom(_random);
-        return signature.GetValues();
+
+        var adjectiveCount = Math.Min(adjectives.Count, _random.Next(1, 3));
+        var selectedAdjectives = adjectives.OrderBy(x => _random.Next()).Take(adjectiveCount).ToList();
+        return string.Join(" ", selectedAdjectives) + " " + itemType;
     }
 
-    public static float[] GenerateSimilarSignature(float[] baseSignature, float variance)
+    private static Signature GenerateRandomSignature()
+    {
+        return Signature.CreateRandom(_random);
+    }
+
+    public static Signature GenerateSimilarSignature(Signature baseSignature, float variance)
     {
         try
         {
-            var baseSig = new Signature(baseSignature);
-            var similarSig = Signature.CreateSimilar(baseSig, variance, _random);
-            return similarSig.GetValues();
+            return Signature.CreateSimilar(baseSignature, variance, _random);
         }
         catch (ArgumentException)
         {

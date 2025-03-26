@@ -31,14 +31,14 @@ namespace DungeonGame.Code.Core
         private SpriteFont _smallFont;
 
         // Game data
-        private Player _player;
-        private Inventory _inventory;
-        private Dungeon _currentDungeon;
-        private Item[] _dungeonSlotItems;
+        protected Player _player;
+        protected Inventory _inventory;
+        protected Dungeon _currentDungeon;
+        protected Item[] _dungeonSlotItems;
         private Item _selectedDungeonItem;
-        private DungeonResult _dungeonResult;
-        private bool _runningDungeon;
-        private float _runTimer;
+        protected DungeonResult _dungeonResult;
+        protected bool _runningDungeon;
+        protected float _runTimer;
 
         public SignatureGame()
         {

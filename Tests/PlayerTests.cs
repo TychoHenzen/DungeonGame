@@ -67,7 +67,7 @@ namespace DungeonGame.Tests
                 Type = "Sword",
                 Slot = "weapon",
                 Power = 10,
-                Signature = new float[] { 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f }
+                Signature = new Signature([ 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f ])
             };
             
             // Act

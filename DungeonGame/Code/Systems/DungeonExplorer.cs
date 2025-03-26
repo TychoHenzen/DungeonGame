@@ -378,38 +378,24 @@ public class DungeonExplorer
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, float[] dungeonSignature)
+    private float CalculateAffinityBonus(Dictionary<string, Item> equippedItems, Signature dungeonSignature)
     {
-        Signature dungeonSig;
-        try
-        {
-            dungeonSig = new Signature(dungeonSignature);
-        }
-        catch (ArgumentException)
-        {
-            // Create a default signature if the provided one is invalid
-            dungeonSig = Signature.CreateRandom();
-        }
         
         float affinitySum = 0;
         int itemCount = 0;
         
-        foreach (var item in equippedItems.Values)
+        foreach (var item in equippedItems.Values
+                     .Where(item => item is { Signature: not null }))
         {
-            if (item != null && item.Signature != null)
+            try
             {
-                try
-                {
-                    var itemSignature = new Signature(item.Signature);
-                    float similarity = itemSignature.CalculateSimilarityWith(dungeonSig);
-                    affinitySum += similarity;
-                    itemCount++;
-                }
-                catch (ArgumentException)
-                {
-                    // Skip items with invalid signatures
-                    continue;
-                }
+                var similarity = item.Signature.CalculateSimilarityWith(dungeonSignature);
+                affinitySum += similarity;
+                itemCount++;
+            }
+            catch (ArgumentException)
+            {
+                // Skip items with invalid signatures
             }
         }
         
