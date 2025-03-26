@@ -26,7 +26,7 @@ public class DungeonExplorer
     {
         _dungeon = dungeon;
         _player = player;
-        _explorationLog = new List<string>();
+        _explorationLog = [];
         _playerStats = _player.CalculateStats();
         _currentHealth = _playerStats.MaxHealth;
     }

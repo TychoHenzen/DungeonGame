@@ -38,7 +38,12 @@ public static class ItemGenerator
         };
     }
 
-    public static Item GenerateItemWithSignature(Signature baseSignature, float variance = 0.3f)
+    public static Item GenerateItemWithSignature(Signature baseSignature)
+    {
+        return GenerateItemWithSignature(baseSignature, GameConstants.Get.DefaultSignatureVariance);
+    }
+
+    public static Item GenerateItemWithSignature(Signature baseSignature, float variance)
     {
         // Get random item type
         var itemTypes = ItemTypes.Types.Values.ToList();
@@ -71,11 +76,11 @@ public static class ItemGenerator
 
         for (var i = 0; i < Signature.Dimensions; i++)
         {
-            if (signature[i] > 0.5f)
+            if (signature[i] > GameConstants.Get.SignatureHighThreshold)
             {
                 adjectives.Add(SignatureDimensions.HighDescriptors[i]);
             }
-            else if (signature[i] < -0.5f)
+            else if (signature[i] < GameConstants.Get.SignatureLowThreshold)
             {
                 adjectives.Add(SignatureDimensions.LowDescriptors[i]);
             }

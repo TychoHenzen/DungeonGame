@@ -122,7 +122,7 @@ public static class DungeonGenerator
 
     private static Signature GenerateTileSignature(Signature baseSignature, float noiseValue)
     {
-        float[] tileSignature = new float[Signature.Dimensions];
+        var tileSignature = new float[Signature.Dimensions];
 
         for (int i = 0; i < Signature.Dimensions; i++)
         {

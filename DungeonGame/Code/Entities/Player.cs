@@ -13,7 +13,7 @@ public class Player
 {
     public string Name { get; set; }
 
-    private Dictionary<SlotType, Item> _equippedItems = new()
+    private Dictionary<SlotType, Item?> _equippedItems = new()
     {
         { SlotType.Weapon, null },
         { SlotType.Shield, null },
@@ -55,7 +55,7 @@ public class Player
         // Base stats
         var stats = new PlayerStats
         {
-            MaxHealth = GameConstants.Get.PlayerDefenseFactor,
+            MaxHealth = GameConstants.Get.BasePlayerHealth,
             Attack = GameConstants.Get.BasePlayerAttack,
             Defense = GameConstants.Get.BasePlayerDefense,
             Speed = GameConstants.Get.BasePlayerSpeed

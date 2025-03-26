@@ -42,6 +42,22 @@ public sealed class GameConstants
     public int DefaultDungeonSlots { get; init; } = 3;
     public int InitialUnlockedDungeonSlots { get; init; } = 1;
 
+    // Graphics & UI constants
+    public int DefaultScreenWidth { get; init; } = 1280;
+    public int DefaultScreenHeight { get; init; } = 720;
+    
+    // Timing constants
+    public float DungeonSimulationDelay { get; init; } = 3.0f;
+    
+    // Signature constants
+    public float SignatureHighThreshold { get; init; } = 0.5f;
+    public float SignatureLowThreshold { get; init; } = -0.5f;
+    public float DefaultSignatureVariance { get; init; } = 0.2f;
+    
+    // Item generation constants
+    public int MinLootCount { get; init; } = 1;
+    public int MaxLootCount { get; init; } = 4;
+
     public static GameConstants Get { get; } = Load("GameConstants.json");
 
     /// <summary>

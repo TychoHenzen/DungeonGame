@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Interfaces;
 using DungeonGame.Code.Models;
 using DungeonGame.Code.States;
@@ -46,8 +47,8 @@ namespace DungeonGame.Code.Core
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            _graphics.PreferredBackBufferWidth = 1280;
-            _graphics.PreferredBackBufferHeight = 720;
+            _graphics.PreferredBackBufferWidth = GameConstants.Get.DefaultScreenWidth;
+            _graphics.PreferredBackBufferHeight = GameConstants.Get.DefaultScreenHeight;
             Window.AllowUserResizing = true;
         }
 
@@ -64,11 +65,11 @@ namespace DungeonGame.Code.Core
 
             // Set initial state
             _currentState = _gameStates[GameStateType.MainMenu];
-            _dungeonSlotItems = new Item[3]; // 3 slots that can be unlocked over time
+            _dungeonSlotItems = new Item[GameConstants.Get.DefaultDungeonSlots]; 
 
             // Initialize player and inventory
             _player = new Player();
-            _inventory = new Inventory(20); // 20 slots
+            _inventory = new Inventory(GameConstants.Get.DefaultInventoryCapacity); 
 
             // Generate starter items
             for (int i = 0; i < 3; i++)
@@ -127,7 +128,7 @@ namespace DungeonGame.Code.Core
                 _runTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                 // Simulate dungeon after a short time to allow for visualization
-                if (_runTimer >= 3.0f) // Wait 3 seconds before simulating
+                if (_runTimer >= GameConstants.Get.DungeonSimulationDelay)
                 {
                     CompleteDungeon();
                 }
