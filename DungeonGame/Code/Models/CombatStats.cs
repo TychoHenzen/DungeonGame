@@ -1,7 +1,7 @@
 namespace DungeonGame.Code.Models;
 
 /// <summary>
-/// Combat stats
+///     Combat stats
 /// </summary>
 public class CombatStats
 {

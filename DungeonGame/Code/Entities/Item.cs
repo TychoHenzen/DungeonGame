@@ -1,10 +1,14 @@
+#region
+
 using System;
 using DungeonGame.Code.Enums;
+
+#endregion
 
 namespace DungeonGame.Code.Entities;
 
 /// <summary>
-/// Item class
+///     Item class
 /// </summary>
 public class Item
 {

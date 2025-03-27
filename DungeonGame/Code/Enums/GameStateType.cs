@@ -1,7 +1,7 @@
 namespace DungeonGame.Code.Enums;
 
 /// <summary>
-/// Game state types
+///     Game state types
 /// </summary>
 public enum GameStateType
 {

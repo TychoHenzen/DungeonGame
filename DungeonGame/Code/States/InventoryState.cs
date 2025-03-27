@@ -1,3 +1,5 @@
+#region
+
 using System;
 using DungeonGame.Code.Core;
 using DungeonGame.Code.Entities;
@@ -7,26 +9,27 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+#endregion
+
 namespace DungeonGame.Code.States;
 
 /// <summary>
-/// Inventory state with drag-and-drop functionality
+///     Inventory state with drag-and-drop functionality
 /// </summary>
 public class InventoryState : GameState, ITextureUser
 {
-    private Rectangle[] _itemSlots;
-    private Rectangle[] _equipmentSlots;
-    private Rectangle[] _dungeonSlots;
-    private Rectangle _dungeonButton;
-    private Texture2D _texture;
-    private MouseState _previousMouseState;
-
     // Drag and drop state
     private Item _draggedItem;
     private Vector2 _dragPosition;
-    private bool _isDragging;
     private int _dragSourceIndex = -1;
     private string _dragSourceType = string.Empty;
+    private Rectangle _dungeonButton;
+    private Rectangle[] _dungeonSlots;
+    private Rectangle[] _equipmentSlots;
+    private bool _isDragging;
+    private Rectangle[] _itemSlots;
+    private MouseState _previousMouseState;
+    private Texture2D _texture;
 
     // Number of unlocked dungeon slots
     private int _unlockedDungeonSlots = 1;
@@ -35,11 +38,16 @@ public class InventoryState : GameState, ITextureUser
     {
     }
 
+    public void SetTexture(Texture2D texture)
+    {
+        _texture = texture;
+    }
+
     public override void LoadContent()
     {
         // Get screen dimensions
-        int screenWidth = Game.GraphicsDevice.Viewport.Width;
-        int screenHeight = Game.GraphicsDevice.Viewport.Height;
+        var screenWidth = Game.GraphicsDevice.Viewport.Width;
+        var screenHeight = Game.GraphicsDevice.Viewport.Height;
 
         // Layout constants
         const int inventoryX = 50;
@@ -51,20 +59,20 @@ public class InventoryState : GameState, ITextureUser
 
         // Create inventory slots (4x5 grid on left side)
         _itemSlots = new Rectangle[20];
-        for (int i = 0; i < 20; i++)
+        for (var i = 0; i < 20; i++)
         {
-            int row = i / 4;
-            int col = i % 4;
-            int x = inventoryX + col * (inventorySlotWidth + inventorySpacingX);
-            int y = inventoryY + row * (inventorySlotHeight + inventorySpacingY);
+            var row = i / 4;
+            var col = i % 4;
+            var x = inventoryX + col * (inventorySlotWidth + inventorySpacingX);
+            var y = inventoryY + row * (inventorySlotHeight + inventorySpacingY);
             _itemSlots[i] = new Rectangle(x, y, inventorySlotWidth, inventorySlotHeight);
         }
 
         // Calculate last inventory slot position to ensure equipment doesn't overlap
-        int lastInventorySlotRight = inventoryX + 3 * (inventorySlotWidth + inventorySpacingX) + inventorySlotWidth;
+        var lastInventorySlotRight = inventoryX + 3 * (inventorySlotWidth + inventorySpacingX) + inventorySlotWidth;
 
         // Equipment section (right side of screen)
-        int equipmentX = Math.Max(lastInventorySlotRight + 100, screenWidth - 400);
+        var equipmentX = Math.Max(lastInventorySlotRight + 100, screenWidth - 400);
         const int equipmentY = 100;
         const int equipmentSlotWidth = 160;
         const int equipmentSlotHeight = 100;
@@ -74,7 +82,7 @@ public class InventoryState : GameState, ITextureUser
         string[] slots = { "weapon", "shield", "helmet", "armor", "amulet", "ring", "boots" };
         _equipmentSlots = new Rectangle[slots.Length];
 
-        for (int i = 0; i < slots.Length; i++)
+        for (var i = 0; i < slots.Length; i++)
         {
             _equipmentSlots[i] = new Rectangle(
                 equipmentX,
@@ -87,12 +95,12 @@ public class InventoryState : GameState, ITextureUser
         const int dungeonSlotWidth = 200;
         const int dungeonSlotHeight = 100;
         const int dungeonSlotSpacingY = 20;
-        int dungeonSlotsX = Math.Max(equipmentX + inventorySlotWidth + 100, screenWidth - 400);
+        var dungeonSlotsX = Math.Max(equipmentX + inventorySlotWidth + 100, screenWidth - 400);
 
 
         // Create dungeon slots
         _dungeonSlots = new Rectangle[3];
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             _dungeonSlots[i] = new Rectangle(
                 dungeonSlotsX,
@@ -102,7 +110,7 @@ public class InventoryState : GameState, ITextureUser
         }
 
         // Calculate last dungeon slot position
-        int lastDungeonSlotBottom = equipmentY + 2 * (dungeonSlotHeight + dungeonSlotSpacingY) + dungeonSlotHeight;
+        var lastDungeonSlotBottom = equipmentY + 2 * (dungeonSlotHeight + dungeonSlotSpacingY) + dungeonSlotHeight;
 
         // Create dungeon button below dungeon slots
         _dungeonButton = new Rectangle(
@@ -117,16 +125,16 @@ public class InventoryState : GameState, ITextureUser
     public override void Update(GameTime gameTime)
     {
         var mouseState = Mouse.GetState();
-        bool isNewClick = mouseState.LeftButton == ButtonState.Pressed &&
-                          _previousMouseState.LeftButton == ButtonState.Released;
-        bool isReleased = mouseState.LeftButton == ButtonState.Released &&
-                          _previousMouseState.LeftButton == ButtonState.Pressed;
+        var isNewClick = mouseState.LeftButton == ButtonState.Pressed &&
+                         _previousMouseState.LeftButton == ButtonState.Released;
+        var isReleased = mouseState.LeftButton == ButtonState.Released &&
+                         _previousMouseState.LeftButton == ButtonState.Pressed;
 
         // Handle starting a drag operation
         if (isNewClick && !_isDragging)
         {
             // Check inventory slots
-            for (int i = 0; i < _itemSlots.Length; i++)
+            for (var i = 0; i < _itemSlots.Length; i++)
             {
                 if (_itemSlots[i].Contains(mouseState.Position))
                 {
@@ -149,7 +157,7 @@ public class InventoryState : GameState, ITextureUser
             if (!_isDragging)
             {
                 var slots = Enum.GetValues<SlotType>();
-                for (int i = 0; i < _equipmentSlots.Length; i++)
+                for (var i = 0; i < _equipmentSlots.Length; i++)
                 {
                     if (!_equipmentSlots[i].Contains(mouseState.Position))
                     {
@@ -174,7 +182,7 @@ public class InventoryState : GameState, ITextureUser
             // Check dungeon slots
             if (!_isDragging)
             {
-                for (int i = 0; i < _unlockedDungeonSlots; i++)
+                for (var i = 0; i < _unlockedDungeonSlots; i++)
                 {
                     if (_dungeonSlots[i].Contains(mouseState.Position))
                     {
@@ -206,9 +214,9 @@ public class InventoryState : GameState, ITextureUser
         {
             // Check if dropped on equipment slot
             var slots = Enum.GetValues<SlotType>();
-            bool itemDropped = false;
+            var itemDropped = false;
 
-            for (int i = 0; i < _equipmentSlots.Length; i++)
+            for (var i = 0; i < _equipmentSlots.Length; i++)
             {
                 if (!_equipmentSlots[i].Contains(mouseState.Position))
                 {
@@ -246,7 +254,7 @@ public class InventoryState : GameState, ITextureUser
             // Check if dropped on inventory slot
             if (!itemDropped)
             {
-                for (int i = 0; i < _itemSlots.Length; i++)
+                for (var i = 0; i < _itemSlots.Length; i++)
                 {
                     if (_itemSlots[i].Contains(mouseState.Position))
                     {
@@ -277,7 +285,7 @@ public class InventoryState : GameState, ITextureUser
             // Check if dropped on dungeon slot
             if (!itemDropped)
             {
-                for (int i = 0; i < _unlockedDungeonSlots; i++)
+                for (var i = 0; i < _unlockedDungeonSlots; i++)
                 {
                     if (_dungeonSlots[i].Contains(mouseState.Position))
                     {
@@ -321,7 +329,7 @@ public class InventoryState : GameState, ITextureUser
         if (isNewClick && _dungeonButton.Contains(mouseState.Position))
         {
             // Check if any dungeon slot has an item
-            for (int i = 0; i < _unlockedDungeonSlots; i++)
+            for (var i = 0; i < _unlockedDungeonSlots; i++)
             {
                 var dungeonItem = Game.GetDungeonSlotItem(i);
                 if (dungeonItem != null)
@@ -350,7 +358,7 @@ public class InventoryState : GameState, ITextureUser
 
         // Draw inventory slots
         var inventory = Game.GetInventory();
-        for (int i = 0; i < _itemSlots.Length; i++)
+        for (var i = 0; i < _itemSlots.Length; i++)
         {
             // Draw slot background
             spriteBatch.Draw(_texture, _itemSlots[i], Color.Gray * 0.5f);
@@ -359,7 +367,7 @@ public class InventoryState : GameState, ITextureUser
             if (i < inventory.Items.Count)
             {
                 var item = inventory.Items[i];
-                bool isBeingDragged = _isDragging && _dragSourceType == "inventory" && _dragSourceIndex == i;
+                var isBeingDragged = _isDragging && _dragSourceType == "inventory" && _dragSourceIndex == i;
 
                 if (!isBeingDragged)
                 {
@@ -384,7 +392,7 @@ public class InventoryState : GameState, ITextureUser
 
         // Draw equipment slots
         var slots = Enum.GetValues<SlotType>();
-        for (int i = 0; i < _equipmentSlots.Length; i++)
+        for (var i = 0; i < _equipmentSlots.Length; i++)
         {
             // Draw slot background
             spriteBatch.Draw(_texture, _equipmentSlots[i], Color.DarkGray * 0.5f);
@@ -396,7 +404,7 @@ public class InventoryState : GameState, ITextureUser
             // Draw equipped item if exists and not being dragged
             var player = Game.GetPlayer();
             var equippedItem = player.GetEquippedItem(slots[i]);
-            bool isBeingDragged = _isDragging && _dragSourceType == "equipment" && _dragSourceIndex == i;
+            var isBeingDragged = _isDragging && _dragSourceType == "equipment" && _dragSourceIndex == i;
 
             if (equippedItem != null && !isBeingDragged)
             {
@@ -415,14 +423,14 @@ public class InventoryState : GameState, ITextureUser
         }
 
         // Draw dungeon slots
-        for (int i = 0; i < _dungeonSlots.Length; i++)
+        for (var i = 0; i < _dungeonSlots.Length; i++)
         {
             // Draw slot with different color based on locked/unlocked
-            Color slotColor = i < _unlockedDungeonSlots ? Color.RoyalBlue * 0.5f : Color.DarkGray * 0.3f;
+            var slotColor = i < _unlockedDungeonSlots ? Color.RoyalBlue * 0.5f : Color.DarkGray * 0.3f;
             spriteBatch.Draw(_texture, _dungeonSlots[i], slotColor);
 
             // Draw slot label
-            string slotLabel = i < _unlockedDungeonSlots ? $"Dungeon {i + 1}" : "Locked";
+            var slotLabel = i < _unlockedDungeonSlots ? $"Dungeon {i + 1}" : "Locked";
             spriteBatch.DrawString(smallFont, slotLabel,
                 new Vector2(_dungeonSlots[i].X + 10, _dungeonSlots[i].Y + 10), Color.White);
 
@@ -430,7 +438,7 @@ public class InventoryState : GameState, ITextureUser
             if (i < _unlockedDungeonSlots)
             {
                 var dungeonItem = Game.GetDungeonSlotItem(i);
-                bool isBeingDragged = _isDragging && _dragSourceType == "dungeon" && _dragSourceIndex == i;
+                var isBeingDragged = _isDragging && _dragSourceType == "dungeon" && _dragSourceIndex == i;
 
                 if (dungeonItem != null && !isBeingDragged)
                 {
@@ -450,8 +458,8 @@ public class InventoryState : GameState, ITextureUser
         }
 
         // Draw dungeon button
-        bool anyDungeonSlotFilled = false;
-        for (int i = 0; i < _unlockedDungeonSlots; i++)
+        var anyDungeonSlotFilled = false;
+        for (var i = 0; i < _unlockedDungeonSlots; i++)
         {
             if (Game.GetDungeonSlotItem(i) != null)
             {
@@ -468,7 +476,7 @@ public class InventoryState : GameState, ITextureUser
         if (_isDragging && _draggedItem != null)
         {
             // Draw semi-transparent background
-            Rectangle dragRect = new Rectangle((int)_dragPosition.X - 80, (int)_dragPosition.Y - 50, 160, 100);
+            var dragRect = new Rectangle((int)_dragPosition.X - 80, (int)_dragPosition.Y - 50, 160, 100);
             spriteBatch.Draw(_texture, dragRect, Color.White * 0.7f);
 
             // Draw item name
@@ -489,17 +497,17 @@ public class InventoryState : GameState, ITextureUser
         float height)
     {
         // Draw a bar for each dimension
-        float barWidth = width / Signature.Dimensions;
-        for (int i = 0; i < Signature.Dimensions; i++)
+        var barWidth = width / Signature.Dimensions;
+        for (var i = 0; i < Signature.Dimensions; i++)
         {
             // Map -1 to 1 range to 0 to 1 for display
-            float normalizedValue = (signature[i] + 1) / 2;
+            var normalizedValue = (signature[i] + 1) / 2;
 
             // Calculate bar height
-            float barHeight = normalizedValue * height;
+            var barHeight = normalizedValue * height;
 
             // Draw bar
-            Rectangle barRect = new Rectangle(
+            var barRect = new Rectangle(
                 (int)(position.X + i * barWidth),
                 (int)(position.Y + height - barHeight),
                 (int)barWidth - 2,
@@ -507,7 +515,7 @@ public class InventoryState : GameState, ITextureUser
             );
 
             // Color based on dimension
-            Color barColor = GetDimensionColor(i);
+            var barColor = GetDimensionColor(i);
 
             spriteBatch.Draw(_texture, barRect, barColor);
         }
@@ -527,11 +535,6 @@ public class InventoryState : GameState, ITextureUser
             7 => Color.Purple, // Resonance
             _ => Color.White
         };
-    }
-
-    public void SetTexture(Texture2D texture)
-    {
-        _texture = texture;
     }
 
     // Helper method to unlock additional dungeon slots

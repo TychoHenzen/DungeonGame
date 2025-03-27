@@ -1,3 +1,5 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,10 +7,12 @@ using DungeonGame.Code.Entities;
 using DungeonGame.Code.Helpers;
 using DungeonGame.Const;
 
+#endregion
+
 namespace DungeonGame.Code.Systems;
 
 /// <summary>
-/// Enhanced dungeon generator that creates a proper tile map
+///     Enhanced dungeon generator that creates a proper tile map
 /// </summary>
 public static class DungeonGenerator
 {
@@ -40,27 +44,27 @@ public static class DungeonGenerator
         dungeon.TileMap = new Tile[dungeon.Width, dungeon.Height];
 
         // Use temperature and wetness as primary factors for tile distribution
-        float temperature = signature[0]; // First dimension
-        float wetness = signature[2]; // Third dimension
+        var temperature = signature[0]; // First dimension
+        var wetness = signature[2]; // Third dimension
 
         // Create basic noise for map generation
         var noiseMap = GenerateSimpleNoise(dungeon.Width, dungeon.Height);
 
         // Fill the map with tiles
-        for (int x = 0; x < dungeon.Width; x++)
+        for (var x = 0; x < dungeon.Width; x++)
         {
-            for (int y = 0; y < dungeon.Height; y++)
+            for (var y = 0; y < dungeon.Height; y++)
             {
                 // Combine noise with signature to determine tile type
-                float noiseValue = noiseMap[x, y];
-                float adjustedTemp = temperature + noiseValue * 0.5f;
-                float adjustedWet = wetness + noiseValue * 0.3f;
+                var noiseValue = noiseMap[x, y];
+                var adjustedTemp = temperature + noiseValue * 0.5f;
+                var adjustedWet = wetness + noiseValue * 0.3f;
 
                 // Generate tile signature from the base signature with noise influence
-                Signature tileSignature = GenerateTileSignature(signature, noiseValue);
+                var tileSignature = GenerateTileSignature(signature, noiseValue);
 
                 // Determine tile type based on adjusted values
-                string tileType = GetTileTypeForValues(adjustedTemp, adjustedWet, noiseValue);
+                var tileType = GetTileTypeForValues(adjustedTemp, adjustedWet, noiseValue);
 
                 // Create the tile
                 dungeon.TileMap[x, y] = new Tile
@@ -86,9 +90,9 @@ public static class DungeonGenerator
         var noise = new float[width, height];
 
         // Simple implementation of noise (this could be replaced with proper Perlin noise)
-        for (int x = 0; x < width; x++)
+        for (var x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
                 // Generate a smooth noise value between -1 and 1
                 noise[x, y] = (float)(Random.Shared.NextDouble() * 2 - 1);
@@ -97,17 +101,17 @@ public static class DungeonGenerator
 
         // Smooth the noise (simple box blur)
         var smoothedNoise = new float[width, height];
-        for (int x = 0; x < width; x++)
+        for (var x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
                 float sum = 0;
-                int count = 0;
+                var count = 0;
 
                 // Average of neighbors
-                for (int nx = Math.Max(0, x - 1); nx <= Math.Min(width - 1, x + 1); nx++)
+                for (var nx = Math.Max(0, x - 1); nx <= Math.Min(width - 1, x + 1); nx++)
                 {
-                    for (int ny = Math.Max(0, y - 1); ny <= Math.Min(height - 1, y + 1); ny++)
+                    for (var ny = Math.Max(0, y - 1); ny <= Math.Min(height - 1, y + 1); ny++)
                     {
                         sum += noise[nx, ny];
                         count++;
@@ -125,7 +129,7 @@ public static class DungeonGenerator
     {
         var tileSignature = new float[Signature.Dimensions];
 
-        for (int i = 0; i < Signature.Dimensions; i++)
+        for (var i = 0; i < Signature.Dimensions; i++)
         {
             // Vary the signature based on noise
             tileSignature[i] = Math.Clamp(baseSignature[i] + noiseValue * 0.4f, -1f, 1f);
@@ -178,9 +182,9 @@ public static class DungeonGenerator
     private static void EnsureTraversableMap(Dungeon dungeon)
     {
         // Create a simple path from top to bottom to ensure dungeon is traversable
-        int pathX = dungeon.Width / 2;
+        var pathX = dungeon.Width / 2;
 
-        for (int y = 0; y < dungeon.Height; y++)
+        for (var y = 0; y < dungeon.Height; y++)
         {
             // Make this path passable
             dungeon.TileMap[pathX, y].IsPassable = true;
@@ -202,14 +206,14 @@ public static class DungeonGenerator
         dungeon.Enemies.Clear();
 
         // Determine number of enemies based on difficulty
-        int enemyCount = 3 + dungeon.Difficulty * 2;
+        var enemyCount = 3 + dungeon.Difficulty * 2;
 
         // Create a list of open positions where enemies can spawn
         var openPositions = new List<(int x, int y)>();
 
-        for (int x = 0; x < dungeon.Width; x++)
+        for (var x = 0; x < dungeon.Width; x++)
         {
-            for (int y = 0; y < dungeon.Height; y++)
+            for (var y = 0; y < dungeon.Height; y++)
             {
                 if (dungeon.TileMap[x, y].IsPassable)
                 {
@@ -222,7 +226,7 @@ public static class DungeonGenerator
         openPositions = openPositions.OrderBy(_ => Random.Shared.Next()).ToList();
 
         // Create enemies and place them on the map
-        for (int i = 0; i < Math.Min(enemyCount, openPositions.Count); i++)
+        for (var i = 0; i < Math.Min(enemyCount, openPositions.Count); i++)
         {
             var position = openPositions[i];
             var tile = dungeon.TileMap[position.x, position.y];
@@ -266,26 +270,27 @@ public static class DungeonGenerator
 
 
         // Generate adjective for enemy name
-        string adjective = string.Empty;
+        var adjective = string.Empty;
 
-        for (int i = 0; i < Signature.Dimensions; i++)
+        for (var i = 0; i < Signature.Dimensions; i++)
         {
             if (enemySig[i] > 0.5f)
             {
                 adjective = SignatureDimensions.HighDescriptors[i];
                 break;
             }
-            else if (enemySig[i] < -0.5f)
+
+            if (enemySig[i] < -0.5f)
             {
                 adjective = SignatureDimensions.LowDescriptors[i];
                 break;
             }
         }
 
-        string enemyName = string.IsNullOrEmpty(adjective) ? enemyType.Name : $"{adjective} {enemyType.Name}";
+        var enemyName = string.IsNullOrEmpty(adjective) ? enemyType.Name : $"{adjective} {enemyType.Name}";
 
         // Scale enemy stats based on signature similarity to dungeon
-        float similarityFactor = 1 - enemySig.CalculateDistanceFrom(dungeonSig) / 4;
+        var similarityFactor = 1 - enemySig.CalculateDistanceFrom(dungeonSig) / 4;
 
         return new Enemy
         {

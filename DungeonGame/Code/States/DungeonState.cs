@@ -1,3 +1,5 @@
+#region
+
 using System;
 using System.Linq;
 using DungeonGame.Code.Core;
@@ -8,17 +10,24 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+#endregion
+
 namespace DungeonGame.Code.States;
 
 /// <summary>
-/// Dungeon state
+///     Dungeon state
 /// </summary>
 public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
 {
-    private Rectangle _statusPanel;
-    private Rectangle _mapPanel;
     private Rectangle _combatLogPanel;
+    private Rectangle _mapPanel;
+    private Rectangle _statusPanel;
     private Texture2D _texture;
+
+    public void SetTexture(Texture2D texture)
+    {
+        _texture = texture;
+    }
 
     public override void LoadContent()
     {
@@ -76,16 +85,16 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
         if (Game.IsRunningDungeon())
         {
             // Draw progress bar
-            float progress = Game.GetRunTimer() / 3.0f; // 3 seconds before simulation completes
+            var progress = Game.GetRunTimer() / 3.0f; // 3 seconds before simulation completes
             progress = Math.Min(progress, 1.0f);
 
-            Rectangle progressBar = new Rectangle(_mapPanel.X, _mapPanel.Y + _mapPanel.Height + 20,
+            var progressBar = new Rectangle(_mapPanel.X, _mapPanel.Y + _mapPanel.Height + 20,
                 (int)(_mapPanel.Width * progress), 20);
 
             spriteBatch.Draw(_texture, progressBar, Color.Green);
 
             // Draw time remaining
-            float timeRemaining = 3.0f - Game.GetRunTimer();
+            var timeRemaining = 3.0f - Game.GetRunTimer();
             if (timeRemaining > 0)
             {
                 spriteBatch.DrawString(smallFont, $"Exploring: {timeRemaining:F1}s",
@@ -105,8 +114,8 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
             // Draw dungeon result
             var result = Game.GetDungeonResult();
 
-            string resultText = result.Success ? "SUCCESS!" : "FAILED";
-            Color resultColor = result.Success ? Color.Green : Color.Red;
+            var resultText = result.Success ? "SUCCESS!" : "FAILED";
+            var resultColor = result.Success ? Color.Green : Color.Red;
 
             spriteBatch.DrawString(defaultFont, resultText,
                 new Vector2(_mapPanel.X + _mapPanel.Width / 2 - 60, _mapPanel.Y + 30), resultColor);
@@ -132,7 +141,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                 spriteBatch.DrawString(smallFont, "Loot:",
                     new Vector2(_mapPanel.X + 20, _mapPanel.Y + 230), Color.Gold);
 
-                for (int i = 0; i < result.Loot.Count; i++)
+                for (var i = 0; i < result.Loot.Count; i++)
                 {
                     spriteBatch.DrawString(smallFont, result.Loot[i].Name,
                         new Vector2(_mapPanel.X + 40, _mapPanel.Y + 260 + i * 30), Color.White);
@@ -157,9 +166,9 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
         {
             var log = Game.GetDungeonResult().CombatLog;
 
-            for (int i = 0; i < Math.Min(log.Count, 30); i++)
+            for (var i = 0; i < Math.Min(log.Count, 30); i++)
             {
-                Color textColor = Color.White;
+                var textColor = Color.White;
 
                 // Color coding
                 if (log[i].Contains("DUNGEON CLEARED")) textColor = Color.Green;
@@ -186,29 +195,29 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
         }
 
         // Draw a representation of the tile map
-        int tileSize = Math.Min(
+        var tileSize = Math.Min(
             _mapPanel.Width / dungeon.Width,
             _mapPanel.Height / dungeon.Height
         );
 
-        int startX = _mapPanel.X + (_mapPanel.Width - tileSize * dungeon.Width) / 2;
-        int startY = _mapPanel.Y + (_mapPanel.Height - tileSize * dungeon.Height) / 2;
+        var startX = _mapPanel.X + (_mapPanel.Width - tileSize * dungeon.Width) / 2;
+        var startY = _mapPanel.Y + (_mapPanel.Height - tileSize * dungeon.Height) / 2;
 
         // Calculate how much of the map to reveal based on progress
-        int revealedTiles = (int)(dungeon.Width * dungeon.Height * progress);
+        var revealedTiles = (int)(dungeon.Width * dungeon.Height * progress);
 
         // Draw the tile map
-        for (int x = 0; x < dungeon.Width; x++)
+        for (var x = 0; x < dungeon.Width; x++)
         {
-            for (int y = 0; y < dungeon.Height; y++)
+            for (var y = 0; y < dungeon.Height; y++)
             {
-                int tileIndex = y * dungeon.Width + x;
+                var tileIndex = y * dungeon.Width + x;
 
                 // Only draw tiles that are revealed based on progress
                 if (tileIndex < revealedTiles)
                 {
                     var tile = dungeon.TileMap[x, y];
-                    Rectangle tileRect = new Rectangle(
+                    var tileRect = new Rectangle(
                         startX + x * tileSize,
                         startY + y * tileSize,
                         tileSize,
@@ -216,13 +225,13 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                     );
 
                     // Draw tile with appropriate color
-                    Color tileColor = GetTileColor(tile.Type);
+                    var tileColor = GetTileColor(tile.Type);
                     spriteBatch.Draw(_texture, tileRect, tileColor);
 
                     // Draw player position
                     if (x == dungeon.PlayerX && y == dungeon.PlayerY)
                     {
-                        Rectangle playerRect = new Rectangle(
+                        var playerRect = new Rectangle(
                             tileRect.X + tileRect.Width / 4,
                             tileRect.Y + tileRect.Height / 4,
                             tileRect.Width / 2,
@@ -235,7 +244,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                     var enemy = dungeon.GetEnemyAt(x, y);
                     if (enemy != null)
                     {
-                        Rectangle enemyRect = new Rectangle(
+                        var enemyRect = new Rectangle(
                             tileRect.X + tileRect.Width / 3,
                             tileRect.Y + tileRect.Height / 3,
                             tileRect.Width / 3,
@@ -245,10 +254,10 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                     }
 
                     // Draw defeated enemies (optional)
-                    bool isDefeated = dungeon.DefeatedEnemies?.Any(e => e.X == x && e.Y == y) == true;
+                    var isDefeated = dungeon.DefeatedEnemies?.Any(e => e.X == x && e.Y == y) == true;
                     if (isDefeated)
                     {
-                        Rectangle defeatRect = new Rectangle(
+                        var defeatRect = new Rectangle(
                             tileRect.X + tileRect.Width / 3,
                             tileRect.Y + tileRect.Height / 3,
                             tileRect.Width / 3,
@@ -260,7 +269,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                 else
                 {
                     // Draw fog of war for unrevealed tiles
-                    Rectangle tileRect = new Rectangle(
+                    var tileRect = new Rectangle(
                         startX + x * tileSize,
                         startY + y * tileSize,
                         tileSize,
@@ -272,27 +281,27 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
         }
 
         // Draw legend
-        int legendX = startX + dungeon.Width * tileSize + 20;
-        int legendY = startY;
+        var legendX = startX + dungeon.Width * tileSize + 20;
+        var legendY = startY;
 
         // Draw title for the legend
         spriteBatch.DrawString(smallFont, "Legend:", new Vector2(legendX, legendY), Color.White);
         legendY += 25;
 
         // Draw player legend
-        Rectangle playerLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+        var playerLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
         spriteBatch.Draw(_texture, playerLegend, Color.White);
         spriteBatch.DrawString(smallFont, "Player", new Vector2(legendX + tileSize, legendY), Color.White);
         legendY += tileSize;
 
         // Draw enemy legend
-        Rectangle enemyLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+        var enemyLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
         spriteBatch.Draw(_texture, enemyLegend, Color.Red);
         spriteBatch.DrawString(smallFont, "Enemy", new Vector2(legendX + tileSize, legendY), Color.White);
         legendY += tileSize;
 
         // Draw defeated enemy legend
-        Rectangle defeatedLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+        var defeatedLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
         spriteBatch.Draw(_texture, defeatedLegend, Color.Gray);
         spriteBatch.DrawString(smallFont, "Defeated Enemy", new Vector2(legendX + tileSize, legendY), Color.White);
         legendY += tileSize;
@@ -301,14 +310,14 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
         string[] commonTiles = { "Stone", "Water", "Lava", "Grass", "Sand" };
         foreach (var tileType in commonTiles)
         {
-            Rectangle tileLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
+            var tileLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
             spriteBatch.Draw(_texture, tileLegend, GetTileColor(tileType));
             spriteBatch.DrawString(smallFont, tileType, new Vector2(legendX + tileSize, legendY), Color.White);
             legendY += tileSize;
         }
 
         // Draw enemies defeated count
-        int defeatedCount = dungeon.DefeatedEnemies?.Count ?? 0;
+        var defeatedCount = dungeon.DefeatedEnemies?.Count ?? 0;
         spriteBatch.DrawString(smallFont, $"Enemies: {defeatedCount}/{dungeon.Enemies.Count}",
             new Vector2(startX, startY + dungeon.Height * tileSize + 20), Color.White);
     }
@@ -317,32 +326,32 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
     private void DrawLegacyMap(SpriteBatch spriteBatch, Dungeon dungeon, float progress, SpriteFont smallFont)
     {
         // Create a simplified map visualization
-        int roomsCount = dungeon.Tiles.Count;
-        int roomsToShow = (int)Math.Ceiling(roomsCount * progress);
+        var roomsCount = dungeon.Tiles.Count;
+        var roomsToShow = (int)Math.Ceiling(roomsCount * progress);
 
-        int tileSize = 80;
-        int startX = _mapPanel.X + 50;
-        int startY = _mapPanel.Y + 50;
+        var tileSize = 80;
+        var startX = _mapPanel.X + 50;
+        var startY = _mapPanel.Y + 50;
 
         // Draw explored rooms
-        for (int i = 0; i < roomsToShow; i++)
+        for (var i = 0; i < roomsToShow; i++)
         {
             var tile = dungeon.Tiles[i];
 
             // Calculate position - simple path
-            int x = startX + i * (tileSize + 20);
-            int y = startY + (i % 2) * 40; // Zigzag path
+            var x = startX + i * (tileSize + 20);
+            var y = startY + i % 2 * 40; // Zigzag path
 
             if (x > _mapPanel.Right - tileSize)
             {
                 // Move to next row
-                x = startX + (i % 3) * (tileSize + 20);
-                y = startY + 150 + (i / 3) * 130;
+                x = startX + i % 3 * (tileSize + 20);
+                y = startY + 150 + i / 3 * 130;
             }
 
             // Draw tile
-            Rectangle tileRect = new Rectangle(x, y, tileSize, tileSize);
-            Color tileColor = GetTileColor(tile.Type);
+            var tileRect = new Rectangle(x, y, tileSize, tileSize);
+            var tileColor = GetTileColor(tile.Type);
 
             spriteBatch.Draw(_texture, tileRect, tileColor);
 
@@ -373,10 +382,5 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
             "Wood" => Color.SaddleBrown,
             _ => Color.LightGray // Stone or default
         };
-    }
-
-    public void SetTexture(Texture2D texture)
-    {
-        _texture = texture;
     }
 }

@@ -1,10 +1,14 @@
+#region
+
 using System.Collections.Generic;
 using DungeonGame.Code.Entities;
+
+#endregion
 
 namespace DungeonGame.Code.Models;
 
 /// <summary>
-/// Helper class to reduce parameter count in methods
+///     Helper class to reduce parameter count in methods
 /// </summary>
 public class DungeonRunData
 {

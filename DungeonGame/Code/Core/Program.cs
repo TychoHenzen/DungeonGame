@@ -1,9 +1,13 @@
-﻿using System;
+﻿#region
+
+using System;
+
+#endregion
 
 namespace DungeonGame.Code.Core;
 
 /// <summary>
-/// Program entry point
+///     Program entry point
 /// </summary>
 file static class Program
 {

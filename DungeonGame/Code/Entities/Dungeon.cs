@@ -8,7 +8,7 @@ using System.Linq;
 namespace DungeonGame.Code.Entities;
 
 /// <summary>
-/// Enhanced dungeon class with tile map support
+///     Enhanced dungeon class with tile map support
 /// </summary>
 public class Dungeon
 {
@@ -48,7 +48,7 @@ public class Dungeon
     public string Name { get; set; }
 
     /// <summary>
-    /// Gets the enemy at the specified position, or null if none
+    ///     Gets the enemy at the specified position, or null if none
     /// </summary>
     public Enemy? GetEnemyAt(int x, int y)
     {
@@ -56,7 +56,7 @@ public class Dungeon
     }
 
     /// <summary>
-    /// Checks if a tile is passable
+    ///     Checks if a tile is passable
     /// </summary>
     private bool IsTilePassable(int x, int y)
     {
@@ -69,7 +69,7 @@ public class Dungeon
     }
 
     /// <summary>
-    /// Moves the player in the specified direction if possible
+    ///     Moves the player in the specified direction if possible
     /// </summary>
     public bool MovePlayer(int deltaX, int deltaY)
     {
@@ -87,7 +87,7 @@ public class Dungeon
     }
 
     /// <summary>
-    /// Checks if all enemies are defeated
+    ///     Checks if all enemies are defeated
     /// </summary>
     public bool AreAllEnemiesDefeated()
     {
@@ -95,7 +95,7 @@ public class Dungeon
     }
 
     /// <summary>
-    /// Sets the starting position for the player
+    ///     Sets the starting position for the player
     /// </summary>
     public void SetStartingPosition()
     {

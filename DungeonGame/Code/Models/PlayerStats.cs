@@ -1,7 +1,7 @@
 namespace DungeonGame.Code.Models;
 
 /// <summary>
-/// Player stats
+///     Player stats
 /// </summary>
 public class PlayerStats
 {

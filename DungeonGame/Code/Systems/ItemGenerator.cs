@@ -1,3 +1,5 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,14 +7,15 @@ using DungeonGame.Code.Entities;
 using DungeonGame.Code.Helpers;
 using DungeonGame.Const;
 
+#endregion
+
 namespace DungeonGame.Code.Systems;
 
 /// <summary>
-/// Item generator
+///     Item generator
 /// </summary>
 public static class ItemGenerator
 {
-
     public static Item GenerateRandomItem()
     {
         // Get random item type
@@ -54,11 +57,11 @@ public static class ItemGenerator
         var signature = Signature.CreateSimilar(baseSignature, variance);
 
         // Generate name with adjectives
-        string name = GenerateItemName(itemType.Name, signature);
+        var name = GenerateItemName(itemType.Name, signature);
 
         // Calculate power based on signature intensity
-        float signatureIntensity = signature.GetValues().Sum(Math.Abs) / Signature.Dimensions;
-        int power = (int)(itemType.BasePower * (1 + signatureIntensity));
+        var signatureIntensity = signature.GetValues().Sum(Math.Abs) / Signature.Dimensions;
+        var power = (int)(itemType.BasePower * (1 + signatureIntensity));
 
         return new Item
         {

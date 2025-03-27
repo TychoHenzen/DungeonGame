@@ -13,7 +13,7 @@ using DungeonGame.Const;
 namespace DungeonGame.Code.Systems;
 
 /// <summary>
-/// Handles automated dungeon exploration and combat
+///     Handles automated dungeon exploration and combat
 /// </summary>
 public class DungeonExplorer
 {
@@ -36,7 +36,7 @@ public class DungeonExplorer
     }
 
     /// <summary>
-    /// Runs the dungeon exploration and returns the result
+    ///     Runs the dungeon exploration and returns the result
     /// </summary>
     public DungeonResult ExploreAutomatically()
     {
@@ -113,35 +113,35 @@ public class DungeonExplorer
     }
 
     /// <summary>
-    /// Calculates player stats with affinity bonus applied
+    ///     Calculates player stats with affinity bonus applied
     /// </summary>
     private void CalculatePlayerStatsWithAffinity()
     {
         _playerStats = _player.CalculateStats();
 
         // Calculate signature affinity bonus
-        float affinityBonus = CalculateAffinityBonus(_player.GetEquippedItems(), _dungeon.Signature);
+        var affinityBonus = CalculateAffinityBonus(_player.GetEquippedItems(), _dungeon.Signature);
 
         // Apply affinity bonus to stats
-        _playerStats.Attack *= (1 + affinityBonus * Constants.Combat.AffinityAttackBonus);
-        _playerStats.Defense *= (1 + affinityBonus * Constants.Combat.AffinityDefenseBonus);
-        _playerStats.Speed *= (1 + affinityBonus * Constants.Combat.AffinitySpeedBonus);
+        _playerStats.Attack *= 1 + affinityBonus * Constants.Combat.AffinityAttackBonus;
+        _playerStats.Defense *= 1 + affinityBonus * Constants.Combat.AffinityDefenseBonus;
+        _playerStats.Speed *= 1 + affinityBonus * Constants.Combat.AffinitySpeedBonus;
 
         _explorationLog.Add($"Affinity bonus: {affinityBonus:P0}");
     }
 
     /// <summary>
-    /// Simulates combat between player and an enemy
+    ///     Simulates combat between player and an enemy
     /// </summary>
     private (bool EnemyDefeated, float DamageDealt, float DamageTaken) SimulateCombat(Enemy enemy)
     {
         // Log enemy encounter
         _explorationLog.Add($"Encountered {enemy.Name}! (HP: {(int)enemy.Health}, DMG: {(int)enemy.Damage})");
 
-        float enemyHealth = enemy.Health;
+        var enemyHealth = enemy.Health;
         float totalDamageDealt = 0;
         float totalDamageTaken = 0;
-        int rounds = 0;
+        var rounds = 0;
 
         // Combat rounds
         while (enemyHealth > 0 && _currentHealth > 0)
@@ -149,12 +149,12 @@ public class DungeonExplorer
             rounds++;
 
             // Determine if player attacks first based on speed
-            bool playerFirst = _playerStats.Speed >= enemy.Damage * Constants.Combat.PlayerSpeedAdvantageFactor;
+            var playerFirst = _playerStats.Speed >= enemy.Damage * Constants.Combat.PlayerSpeedAdvantageFactor;
 
             // Player's first attack if going first
             if (playerFirst)
             {
-                float damage = CalculatePlayerDamage(_playerStats, enemy);
+                var damage = CalculatePlayerDamage(_playerStats, enemy);
                 ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name);
                 totalDamageDealt += damage;
 
@@ -167,7 +167,7 @@ public class DungeonExplorer
             }
 
             // Enemy attack
-            float enemyDamage = CalculateEnemyDamage(enemy, _playerStats);
+            var enemyDamage = CalculateEnemyDamage(enemy, _playerStats);
             ApplyDamageToPlayer(ref _currentHealth, enemyDamage, enemy.Name);
             totalDamageTaken += enemyDamage;
 
@@ -180,7 +180,7 @@ public class DungeonExplorer
             // Player's second attack if going second
             if (!playerFirst)
             {
-                float damage = CalculatePlayerDamage(_playerStats, enemy);
+                var damage = CalculatePlayerDamage(_playerStats, enemy);
                 ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name);
                 totalDamageDealt += damage;
 
@@ -204,29 +204,29 @@ public class DungeonExplorer
     }
 
     /// <summary>
-    /// Calculates damage dealt by player with randomness
+    ///     Calculates damage dealt by player with randomness
     /// </summary>
     private float CalculatePlayerDamage(PlayerStats playerStats, Enemy enemy)
     {
         // Calculate player damage with variance (80-120% damage)
-        float damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
-        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * Constants.Combat.EnemyDefenseFactor);
+        var damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
+        var baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * Constants.Combat.EnemyDefenseFactor);
         return (float)Math.Round(baseDamage * damageVariance);
     }
 
     /// <summary>
-    /// Calculates damage dealt by enemy with randomness
+    ///     Calculates damage dealt by enemy with randomness
     /// </summary>
     private float CalculateEnemyDamage(Enemy enemy, PlayerStats playerStats)
     {
         // Enemy damage with variance (90-110% damage)
-        float enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
-        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * Constants.Combat.PlayerDefenseFactor);
+        var enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
+        var enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * Constants.Combat.PlayerDefenseFactor);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
 
     /// <summary>
-    /// Applies damage to enemy and logs result
+    ///     Applies damage to enemy and logs result
     /// </summary>
     private void ApplyDamageToEnemy(ref float enemyHealth, float damage, string enemyName)
     {
@@ -236,7 +236,7 @@ public class DungeonExplorer
     }
 
     /// <summary>
-    /// Applies damage to player and logs result
+    ///     Applies damage to player and logs result
     /// </summary>
     private void ApplyDamageToPlayer(ref float playerHealth, float damage, string enemyName)
     {
@@ -246,16 +246,16 @@ public class DungeonExplorer
     }
 
     /// <summary>
-    /// Handles health recovery between moves
+    ///     Handles health recovery between moves
     /// </summary>
     private void RecoverBetweenMoves()
     {
-        float recovery = _playerStats.MaxHealth * Constants.Combat.PlayerRecoveryPercent;
+        var recovery = _playerStats.MaxHealth * Constants.Combat.PlayerRecoveryPercent;
         _currentHealth = Math.Min(_playerStats.MaxHealth, _currentHealth + recovery);
     }
 
     /// <summary>
-    /// Moves the player to the next tile using a simple algorithm
+    ///     Moves the player to the next tile using a simple algorithm
     /// </summary>
     private void MoveToNextTile()
     {
@@ -272,16 +272,16 @@ public class DungeonExplorer
         }
 
         // Find the closest enemy
-        Enemy target = remainingEnemies.OrderBy(e =>
+        var target = remainingEnemies.OrderBy(e =>
             Math.Abs(e.X - _dungeon.PlayerX) + Math.Abs(e.Y - _dungeon.PlayerY)
         ).First();
 
         // Move towards target
-        int deltaX = Math.Sign(target.X - _dungeon.PlayerX);
-        int deltaY = Math.Sign(target.Y - _dungeon.PlayerY);
+        var deltaX = Math.Sign(target.X - _dungeon.PlayerX);
+        var deltaY = Math.Sign(target.Y - _dungeon.PlayerY);
 
         // Try moving horizontally or vertically
-        bool moved = false;
+        var moved = false;
         if (deltaX != 0)
         {
             moved = _dungeon.MovePlayer(deltaX, 0);
@@ -323,14 +323,14 @@ public class DungeonExplorer
     }
 
     /// <summary>
-    /// Creates the final dungeon result
+    ///     Creates the final dungeon result
     /// </summary>
     private DungeonResult CreateDungeonResult()
     {
-        bool success = _currentHealth > 0 && _dungeon.AreAllEnemiesDefeated();
-        int enemiesDefeated = _dungeon.DefeatedEnemies.Count;
+        var success = _currentHealth > 0 && _dungeon.AreAllEnemiesDefeated();
+        var enemiesDefeated = _dungeon.DefeatedEnemies.Count;
         float totalDamageDealt = 0; // We'd need to track this more explicitly
-        float totalDamageTaken = _playerStats.MaxHealth - _currentHealth;
+        var totalDamageTaken = _playerStats.MaxHealth - _currentHealth;
 
         // End of dungeon summary
         if (success)
@@ -339,7 +339,7 @@ public class DungeonExplorer
         }
 
         // Define casualties based on remaining health
-        bool casualties = success && (_currentHealth / _playerStats.MaxHealth < Constants.Combat.LowHealthThreshold);
+        var casualties = success && _currentHealth / _playerStats.MaxHealth < Constants.Combat.LowHealthThreshold;
         if (casualties)
         {
             _explorationLog.Add("Barely survived with heavy injuries!");
@@ -383,12 +383,12 @@ public class DungeonExplorer
     }
 
     /// <summary>
-    /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
+    ///     Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
     private float CalculateAffinityBonus(Dictionary<SlotType, Item?> equippedItems, Signature dungeonSignature)
     {
         float affinitySum = 0;
-        int itemCount = 0;
+        var itemCount = 0;
 
         foreach (var item in equippedItems.Values
                      .Where(item => item is not null))

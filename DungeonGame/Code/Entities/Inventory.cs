@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace DungeonGame.Code.Entities;
 
 /// <summary>
-/// Inventory class
+///     Inventory class
 /// </summary>
 public class Inventory
 {

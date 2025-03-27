@@ -1,7 +1,7 @@
 namespace DungeonGame.Code.Helpers;
 
 /// <summary>
-/// Dimensions of the magic signature
+///     Dimensions of the magic signature
 /// </summary>
 public static class SignatureDimensions
 {

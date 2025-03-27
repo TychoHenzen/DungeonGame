@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace DungeonGame.Code.States;
 
 /// <summary>
-/// Combat state - for future detailed combat visualization
+///     Combat state - for future detailed combat visualization
 /// </summary>
 public class CombatState(SignatureGame game) : GameState(game)
 {

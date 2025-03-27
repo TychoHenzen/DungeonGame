@@ -1,13 +1,17 @@
+#region
+
 using DungeonGame.Code.Core;
 using DungeonGame.Code.Enums;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+#endregion
+
 namespace DungeonGame.Code.States;
 
 /// <summary>
-/// Main menu state
+///     Main menu state
 /// </summary>
 public class MainMenuState(SignatureGame game) : GameState(game)
 {
@@ -19,7 +23,7 @@ public class MainMenuState(SignatureGame game) : GameState(game)
             Game.ChangeState(GameStateType.Inventory);
         }
     }
-        
+
     public override void Draw(SpriteBatch spriteBatch, SpriteFont defaultFont, SpriteFont smallFont)
     {
         // Draw title and instructions

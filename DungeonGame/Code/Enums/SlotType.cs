@@ -9,5 +9,5 @@ public enum SlotType
     Amulet,
     Ring,
     Boots,
-    Selected,
+    Selected
 }

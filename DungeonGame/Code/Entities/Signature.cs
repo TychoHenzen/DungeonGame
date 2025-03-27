@@ -8,14 +8,14 @@ using DungeonGame.Code.Helpers;
 namespace DungeonGame.Code.Entities;
 
 /// <summary>
-/// Represents a magical signature with standardized dimensions
+///     Represents a magical signature with standardized dimensions
 /// </summary>
 public sealed class Signature
 {
     private readonly float[] _values;
 
     /// <summary>
-    /// Creates a new signature with the specified values
+    ///     Creates a new signature with the specified values
     /// </summary>
     /// <param name="values">The signature values (must match the number of dimensions)</param>
     /// <exception cref="ArgumentException">Thrown when values length doesn't match dimensions</exception>
@@ -52,7 +52,7 @@ public sealed class Signature
     }
 
     /// <summary>
-    /// Creates a random signature
+    ///     Creates a random signature
     /// </summary>
     public static Signature CreateRandom()
     {
@@ -67,7 +67,7 @@ public sealed class Signature
     }
 
     /// <summary>
-    /// Creates a signature similar to the base signature with some variance
+    ///     Creates a signature similar to the base signature with some variance
     /// </summary>
     public static Signature CreateSimilar(Signature baseSignature, float variance)
     {
@@ -84,7 +84,7 @@ public sealed class Signature
     }
 
     /// <summary>
-    /// Gets the raw values array (copy)
+    ///     Gets the raw values array (copy)
     /// </summary>
     public float[] GetValues()
     {
@@ -94,7 +94,7 @@ public sealed class Signature
     }
 
     /// <summary>
-    /// Calculates similarity between this signature and another (1 = identical, 0 = completely different)
+    ///     Calculates similarity between this signature and another (1 = identical, 0 = completely different)
     /// </summary>
     public float CalculateSimilarityWith(Signature other)
     {
@@ -102,7 +102,7 @@ public sealed class Signature
     }
 
     /// <summary>
-    /// Calculates Euclidean distance between this signature and another
+    ///     Calculates Euclidean distance between this signature and another
     /// </summary>
     public float CalculateDistanceFrom(Signature other)
     {

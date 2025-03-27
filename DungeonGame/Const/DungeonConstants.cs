@@ -2,7 +2,6 @@ namespace DungeonGame.Const;
 
 public class DungeonConstants
 {
-    
     // Dungeon constants
     public int DefaultMapWidth { get; init; } = 20;
     public int DefaultMapHeight { get; init; } = 15;

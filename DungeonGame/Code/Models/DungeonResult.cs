@@ -1,10 +1,14 @@
+#region
+
 using System.Collections.Generic;
 using DungeonGame.Code.Entities;
+
+#endregion
 
 namespace DungeonGame.Code.Models;
 
 /// <summary>
-/// Dungeon result
+///     Dungeon result
 /// </summary>
 public class DungeonResult
 {

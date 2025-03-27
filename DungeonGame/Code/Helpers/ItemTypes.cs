@@ -1,10 +1,14 @@
+#region
+
 using System.Collections.Generic;
 using DungeonGame.Code.Enums;
+
+#endregion
 
 namespace DungeonGame.Code.Helpers;
 
 /// <summary>
-/// Item types
+///     Item types
 /// </summary>
 public static class ItemTypes
 {

@@ -1,9 +1,13 @@
+#region
+
 using System.Collections.Generic;
+
+#endregion
 
 namespace DungeonGame.Code.Helpers;
 
 /// <summary>
-/// Enemy types
+///     Enemy types
 /// </summary>
 public static class EnemyTypes
 {
@@ -15,7 +19,7 @@ public static class EnemyTypes
         { "Troll", new EnemyTypeInfo { Name = "Troll", BaseHealth = 50, BaseDamage = 8 } },
         { "Ghost", new EnemyTypeInfo { Name = "Ghost", BaseHealth = 25, BaseDamage = 6 } }
     };
-        
+
     public class EnemyTypeInfo
     {
         public string Name { get; set; }

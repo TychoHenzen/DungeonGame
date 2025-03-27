@@ -8,7 +8,7 @@ using DungeonGame.Code.Systems;
 namespace DungeonGame.Code.Entities;
 
 /// <summary>
-/// Enemy class
+///     Enemy class
 /// </summary>
 public class Enemy
 {
@@ -21,7 +21,7 @@ public class Enemy
     public int Y { get; set; }
 
     /// <summary>
-    /// Generates loot when the enemy is defeated
+    ///     Generates loot when the enemy is defeated
     /// </summary>
     /// <returns>An item as loot, or null if no loot is generated</returns>
     public Item? GenerateLoot()

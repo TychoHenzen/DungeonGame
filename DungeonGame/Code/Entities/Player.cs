@@ -11,7 +11,7 @@ using DungeonGame.Const;
 namespace DungeonGame.Code.Entities;
 
 /// <summary>
-/// Player class
+///     Player class
 /// </summary>
 public class Player
 {
