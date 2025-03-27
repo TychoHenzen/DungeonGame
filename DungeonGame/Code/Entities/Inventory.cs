@@ -1,4 +1,8 @@
+#region
+
 using System.Collections.Generic;
+
+#endregion
 
 namespace DungeonGame.Code.Entities;
 
@@ -7,15 +11,15 @@ namespace DungeonGame.Code.Entities;
 /// </summary>
 public class Inventory
 {
-    public List<Item> Items { get; }
-    public int Capacity { get; }
-        
     public Inventory(int capacity)
     {
         Items = [];
         Capacity = capacity;
     }
-        
+
+    public List<Item> Items { get; }
+    public int Capacity { get; }
+
     public bool AddItem(Item item)
     {
         if (Items.Count >= Capacity)
@@ -25,9 +29,8 @@ public class Inventory
 
         Items.Add(item);
         return true;
-
     }
-        
+
     public bool RemoveItem(Item item)
     {
         return Items.Remove(item);

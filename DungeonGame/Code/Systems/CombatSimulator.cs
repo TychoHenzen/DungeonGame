@@ -1,3 +1,5 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +7,8 @@ using DungeonGame.Code.Entities;
 using DungeonGame.Code.Enums;
 using DungeonGame.Code.Models;
 using DungeonGame.Const;
+
+#endregion
 
 namespace DungeonGame.Code.Systems;
 
@@ -20,14 +24,26 @@ public class CombatSimulator
     /// <param name="dungeon">The dungeon to be explored</param>
     /// <param name="selectedItem">The item selected for the dungeon run</param>
     /// <returns>A DungeonResult containing the outcome and details of the run</returns>
-    public DungeonResult SimulateDungeonRun(Player player, Dungeon dungeon, Item selectedItem = null)
+    public DungeonResult SimulateDungeonRun(Player player, Dungeon dungeon)
+    {
+        return SimulateDungeonRun(player, dungeon, null);
+    }
+
+    /// <summary>
+    /// Simulates a complete dungeon run with the given player and dungeon
+    /// </summary>
+    /// <param name="player">The player participating in the dungeon run</param>
+    /// <param name="dungeon">The dungeon to be explored</param>
+    /// <param name="selectedItem">The item selected for the dungeon run</param>
+    /// <returns>A DungeonResult containing the outcome and details of the run</returns>
+    public DungeonResult SimulateDungeonRun(Player player, Dungeon dungeon, Item? selectedItem)
     {
         // Combat log to track events
         var combatLog = new List<string>();
 
         // Calculate player stats and apply affinity bonus
         var playerStats = CalculatePlayerStatsWithAffinity(player, dungeon, selectedItem);
-        float currentHealth = playerStats.MaxHealth;
+        var currentHealth = playerStats.MaxHealth;
 
         // Initialize combat tracking variables
         float totalDamageDealt = 0;
@@ -93,7 +109,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates player stats with affinity bonus applied
     /// </summary>
-    private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, Item selectedItem = null)
+    private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, Item? selectedItem = null)
     {
         var playerStats = player.CalculateStats();
 
@@ -103,7 +119,7 @@ public class CombatSimulator
         // Add selected item to the calculation if provided
         if (selectedItem != null)
         {
-            var tempItems = new Dictionary<SlotType, Item>(equippedItems)
+            var tempItems = new Dictionary<SlotType, Item?>(equippedItems)
             {
                 [SlotType.Selected] = selectedItem
             };
@@ -215,22 +231,22 @@ public class CombatSimulator
     /// <summary>
     /// Calculates damage dealt by player with randomness
     /// </summary>
-    private float CalculatePlayerDamage(PlayerStats playerStats, Enemy enemy)
+    private static float CalculatePlayerDamage(PlayerStats playerStats, Enemy enemy)
     {
         // Calculate player damage with variance (80-120% damage)
-        float damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
-        float baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * Constants.Combat.EnemyDefenseFactor);
+        var damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
+        var baseDamage = Math.Max(1, playerStats.Attack - enemy.Damage * Constants.Combat.EnemyDefenseFactor);
         return (float)Math.Round(baseDamage * damageVariance);
     }
 
     /// <summary>
     /// Calculates damage dealt by enemy with randomness
     /// </summary>
-    private float CalculateEnemyDamage(Enemy enemy, PlayerStats playerStats)
+    private static float CalculateEnemyDamage(Enemy enemy, PlayerStats playerStats)
     {
         // Enemy damage with variance (90-110% damage)
-        float enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
-        float enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * Constants.Combat.PlayerDefenseFactor);
+        var enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
+        var enemyBaseDamage = Math.Max(1, enemy.Damage - playerStats.Defense * Constants.Combat.PlayerDefenseFactor);
         return (float)Math.Round(enemyBaseDamage * enemyDamageVariance);
     }
 
@@ -259,10 +275,10 @@ public class CombatSimulator
     /// <summary>
     /// Handles health recovery between fights
     /// </summary>
-    private void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats,
+    private static void RecoverBetweenFights(ref float currentHealth, PlayerStats playerStats,
         ICollection<string> combatLog)
     {
-        float recovery = playerStats.MaxHealth * Constants.Combat.PlayerRecoveryPercent;
+        var recovery = playerStats.MaxHealth * Constants.Combat.PlayerRecoveryPercent;
         currentHealth = Math.Min(playerStats.MaxHealth, currentHealth + recovery);
         combatLog.Add($"Recovered {(int)recovery} HP. Current HP: {(int)currentHealth}");
     }
@@ -282,8 +298,8 @@ public class CombatSimulator
         }
 
         // Define casualties based on remaining health
-        bool casualties = data.Success &&
-                          (data.CurrentHealth / data.PlayerStats.MaxHealth < Constants.Combat.LowHealthThreshold);
+        var casualties = data.Success &&
+                         data.CurrentHealth / data.PlayerStats.MaxHealth < Constants.Combat.LowHealthThreshold;
         if (casualties)
         {
             data.CombatLog.Add("Barely survived with heavy injuries!");
@@ -320,7 +336,8 @@ public class CombatSimulator
     /// <summary>
     /// Generates loot for the dungeon run
     /// </summary>
-    private List<Item> GenerateLoot(bool success, bool casualties, Dungeon dungeon, ICollection<string> combatLog)
+    private static List<Item> GenerateLoot(bool success, bool casualties, Dungeon dungeon,
+        ICollection<string> combatLog)
     {
         var loot = new List<Item>();
         if (!success)
@@ -343,7 +360,7 @@ public class CombatSimulator
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private float CalculateAffinityBonus(Dictionary<SlotType, Item> equippedItems, Signature dungeonSignature)
+    private static float CalculateAffinityBonus(Dictionary<SlotType, Item?> equippedItems, Signature dungeonSignature)
     {
         float affinitySum = 0;
         int itemCount = 0;
@@ -353,7 +370,7 @@ public class CombatSimulator
         {
             var similarity = item.Signature.CalculateSimilarityWith(dungeonSignature);
             // Use a weight factor for the similarity
-            affinitySum += similarity * 2.5f;
+            affinitySum += similarity * Constants.Combat.AffinityScaleFactor;
             itemCount++;
         }
 

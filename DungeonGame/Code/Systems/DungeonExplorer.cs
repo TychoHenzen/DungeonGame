@@ -1,11 +1,14 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
 using DungeonGame.Code.Enums;
-using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Models;
 using DungeonGame.Const;
+
+#endregion
 
 namespace DungeonGame.Code.Systems;
 
@@ -15,13 +18,13 @@ namespace DungeonGame.Code.Systems;
 public class DungeonExplorer
 {
     private readonly Dungeon _dungeon;
-    private readonly Player _player;
     private readonly List<string> _explorationLog;
+    private readonly Player _player;
     private float _currentHealth;
-    private PlayerStats _playerStats;
+    private int _explorationSteps;
 
     private bool _isRunning;
-    private int _explorationSteps;
+    private PlayerStats _playerStats;
 
     public DungeonExplorer(Dungeon dungeon, Player player)
     {
@@ -382,7 +385,7 @@ public class DungeonExplorer
     /// <summary>
     /// Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private float CalculateAffinityBonus(Dictionary<SlotType, Item> equippedItems, Signature dungeonSignature)
+    private float CalculateAffinityBonus(Dictionary<SlotType, Item?> equippedItems, Signature dungeonSignature)
     {
         float affinitySum = 0;
         int itemCount = 0;

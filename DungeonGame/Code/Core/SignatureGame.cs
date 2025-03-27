@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿#region
+
+using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
 using DungeonGame.Code.Enums;
-using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Interfaces;
 using DungeonGame.Code.Models;
 using DungeonGame.Code.States;
@@ -13,6 +14,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+#endregion
+
 namespace DungeonGame.Code.Core
 {
     /// <inheritdoc />
@@ -22,26 +25,26 @@ namespace DungeonGame.Code.Core
     public class SignatureGame : Game
     {
         private readonly GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
-        private Texture2D _uiTexture;
+        protected Dungeon _currentDungeon;
 
         // Game state
         private GameState _currentState;
-        private Dictionary<GameStateType, GameState> _gameStates;
 
         // Game resources
         private SpriteFont _defaultFont;
-        private SpriteFont _smallFont;
+        protected DungeonResult? _dungeonResult;
+        protected Item?[] _dungeonSlotItems;
+        private Dictionary<GameStateType, GameState> _gameStates;
+        protected Inventory _inventory;
 
         // Game data
         protected Player _player;
-        protected Inventory _inventory;
-        protected Dungeon _currentDungeon;
-        protected Item[] _dungeonSlotItems;
-        private Item _selectedDungeonItem;
-        protected DungeonResult? _dungeonResult;
         protected bool _runningDungeon;
         protected float _runTimer;
+        private Item _selectedDungeonItem;
+        private SpriteFont _smallFont;
+        private SpriteBatch _spriteBatch;
+        private Texture2D _uiTexture;
 
         public SignatureGame()
         {
@@ -67,11 +70,11 @@ namespace DungeonGame.Code.Core
 
             // Set initial state
             _currentState = _gameStates[GameStateType.MainMenu];
-            _dungeonSlotItems = new Item[Constants.Dungeon.DefaultDungeonSlots]; 
+            _dungeonSlotItems = new Item[Constants.Dungeon.DefaultDungeonSlots];
 
             // Initialize player and inventory
             _player = new Player();
-            _inventory = new Inventory(Constants.Game.DefaultInventoryCapacity); 
+            _inventory = new Inventory(Constants.Game.DefaultInventoryCapacity);
 
             // Generate starter items
             for (int i = 0; i < 3; i++)
@@ -118,7 +121,9 @@ namespace DungeonGame.Code.Core
             // Exit on Escape key
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
+            }
 
             // Update current state
             _currentState.Update(gameTime);
@@ -194,14 +199,14 @@ namespace DungeonGame.Code.Core
                 }
             }
 
-            if (_dungeonResult.Success && _dungeonSlotItems.Count(item => item != null) == 0)
+            if (_dungeonResult.Success && _dungeonSlotItems.Any(item => item != null))
             {
                 // Unlock the next slot after successful run
                 UnlockNextDungeonSlot();
             }
         }
 
-        public Item GetDungeonSlotItem(int slotIndex)
+        public Item? GetDungeonSlotItem(int slotIndex)
         {
             if (slotIndex >= 0 && slotIndex < _dungeonSlotItems.Length)
             {

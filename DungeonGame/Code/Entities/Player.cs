@@ -1,9 +1,12 @@
+#region
+
 using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Enums;
-using DungeonGame.Code.Helpers;
 using DungeonGame.Code.Models;
 using DungeonGame.Const;
+
+#endregion
 
 namespace DungeonGame.Code.Entities;
 
@@ -12,9 +15,7 @@ namespace DungeonGame.Code.Entities;
 /// </summary>
 public class Player
 {
-    public string Name { get; set; }
-
-    private Dictionary<SlotType, Item?> _equippedItems = new()
+    private readonly Dictionary<SlotType, Item?> _equippedItems = new()
     {
         { SlotType.Weapon, null },
         { SlotType.Shield, null },
@@ -24,6 +25,8 @@ public class Player
         { SlotType.Ring, null },
         { SlotType.Boots, null }
     };
+
+    public string Name { get; set; }
 
     public void EquipItem(Item item)
     {
@@ -46,7 +49,7 @@ public class Player
         return _equippedItems.GetValueOrDefault(slot, null);
     }
 
-    public Dictionary<SlotType, Item> GetEquippedItems()
+    public Dictionary<SlotType, Item?> GetEquippedItems()
     {
         return _equippedItems;
     }
@@ -73,12 +76,26 @@ public class Player
             // Signature-based bonuses
 
             // Temperature (high = fire damage, low = ice defense)
-            if (item.Signature[0] > 0.5f) stats.Attack += item.Power * 0.2f;
-            if (item.Signature[0] < -0.5f) stats.Defense += item.Power * 0.2f;
+            if (item.Signature[0] > Constants.Game.SignatureHighThreshold)
+            {
+                stats.Attack += item.Power * 0.2f;
+            }
+
+            if (item.Signature[0] < Constants.Game.SignatureLowThreshold)
+            {
+                stats.Defense += item.Power * 0.2f;
+            }
 
             // Hardness (high = defense, low = speed)
-            if (item.Signature[1] > 0.5f) stats.Defense += item.Power * 0.3f;
-            if (item.Signature[1] < -0.5f) stats.Speed += item.Power * 0.3f;
+            if (item.Signature[1] > Constants.Game.SignatureHighThreshold)
+            {
+                stats.Defense += item.Power * 0.3f;
+            }
+
+            if (item.Signature[1] < Constants.Game.SignatureLowThreshold)
+            {
+                stats.Speed += item.Power * 0.3f;
+            }
         }
 
         return stats;

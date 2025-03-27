@@ -1,5 +1,9 @@
+#region
+
 using System;
 using DungeonGame.Code.Helpers;
+
+#endregion
 
 namespace DungeonGame.Code.Entities;
 
@@ -9,11 +13,6 @@ namespace DungeonGame.Code.Entities;
 public sealed class Signature
 {
     private readonly float[] _values;
-
-    /// <summary>
-    /// Gets the number of dimensions in the signature
-    /// </summary>
-    public static int Dimensions => SignatureDimensions.Names.Length;
 
     /// <summary>
     /// Creates a new signature with the specified values
@@ -26,45 +25,18 @@ public sealed class Signature
         {
             throw new ArgumentException($"Signature must have exactly {Dimensions} dimensions");
         }
-        
+
         _values = new float[Dimensions];
         Array.Copy(values, _values, Dimensions);
     }
 
     /// <summary>
-    /// Creates a random signature
+    ///     Gets the number of dimensions in the signature
     /// </summary>
-    public static Signature CreateRandom()
-    {
-        var values = new float[Dimensions];
-        
-        for (var i = 0; i < Dimensions; i++)
-        {
-            values[i] = (float)(Random.Shared.NextDouble() * 2 - 1);
-        }
-        
-        return new Signature(values);
-    }
+    public static int Dimensions => SignatureDimensions.Names.Length;
 
     /// <summary>
-    /// Creates a signature similar to the base signature with some variance
-    /// </summary>
-    public static Signature CreateSimilar(Signature baseSignature, float variance)
-    {
-        var values = new float[Dimensions];
-        
-        for (var i = 0; i < Dimensions; i++)
-        {
-            // Add random variance within the specified range
-            var delta = ((float)Random.Shared.NextDouble() * 2 - 1) * variance;
-            values[i] = Math.Clamp(baseSignature[i] + delta, -1f, 1f);
-        }
-        
-        return new Signature(values);
-    }
-
-    /// <summary>
-    /// Gets the value at the specified dimension
+    ///     Gets the value at the specified dimension
     /// </summary>
     public float this[int index]
     {
@@ -77,6 +49,38 @@ public sealed class Signature
 
             throw new IndexOutOfRangeException("Signature dimension index out of range");
         }
+    }
+
+    /// <summary>
+    /// Creates a random signature
+    /// </summary>
+    public static Signature CreateRandom()
+    {
+        var values = new float[Dimensions];
+
+        for (var i = 0; i < Dimensions; i++)
+        {
+            values[i] = (float)(Random.Shared.NextDouble() * 2 - 1);
+        }
+
+        return new Signature(values);
+    }
+
+    /// <summary>
+    /// Creates a signature similar to the base signature with some variance
+    /// </summary>
+    public static Signature CreateSimilar(Signature baseSignature, float variance)
+    {
+        var values = new float[Dimensions];
+
+        for (var i = 0; i < Dimensions; i++)
+        {
+            // Add random variance within the specified range
+            var delta = ((float)Random.Shared.NextDouble() * 2 - 1) * variance;
+            values[i] = Math.Clamp(baseSignature[i] + delta, -1f, 1f);
+        }
+
+        return new Signature(values);
     }
 
     /// <summary>
