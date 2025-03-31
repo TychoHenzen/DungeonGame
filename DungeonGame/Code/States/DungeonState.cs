@@ -311,12 +311,14 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
         legendY += tileSize;
 
         // Draw tile legends for common types
-        string[] commonTiles = { "Stone", "Water", "Lava", "Grass", "Sand" };
+        TileType[] commonTiles = { TileType.Stone, TileType.Water, TileType.Lava, TileType.Grass, TileType.Sand };
         foreach (var tileType in commonTiles)
         {
             var tileLegend = new Rectangle(legendX, legendY, tileSize / 2, tileSize / 2);
             spriteBatch.Draw(_texture, tileLegend, GetTileColor(tileType));
-            spriteBatch.DrawString(smallFont, tileType, new Vector2(legendX + tileSize, legendY), Color.White);
+            spriteBatch.DrawString(smallFont, tileType.ToString(), new Vector2(legendX + tileSize, legendY),
+                Color.White);
+
             legendY += tileSize;
         }
 
@@ -360,7 +362,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
             spriteBatch.Draw(_texture, tileRect, tileColor);
 
             // Draw tile name
-            spriteBatch.DrawString(smallFont, tile.Type,
+            spriteBatch.DrawString(smallFont, tile.Type.ToString(),
                 new Vector2(x + 10, y + 10), Color.Black);
 
             // Draw enemy if there is one
@@ -373,17 +375,17 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
         }
     }
 
-    private Color GetTileColor(string tileType)
+    private Color GetTileColor(TileType tileType)
     {
         return tileType switch
         {
-            "Water" => Color.LightBlue,
-            "Lava" => Color.OrangeRed,
-            "Ice" => Color.AliceBlue,
-            "Grass" => Color.LightGreen,
-            "Sand" => Color.Khaki,
-            "Crystal" => Color.Purple * 0.7f,
-            "Wood" => Color.SaddleBrown,
+            TileType.Water => Color.LightBlue,
+            TileType.Lava => Color.OrangeRed,
+            TileType.Ice => Color.AliceBlue,
+            TileType.Grass => Color.LightGreen,
+            TileType.Sand => Color.Khaki,
+            TileType.Crystal => Color.Purple * 0.7f,
+            TileType.Wood => Color.SaddleBrown,
             _ => Color.LightGray // Stone or default
         };
     }

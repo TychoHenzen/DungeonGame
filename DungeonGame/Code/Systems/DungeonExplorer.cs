@@ -229,6 +229,7 @@ public class DungeonExplorer
             }
         }
 
+        simulateCombat = (false, totalDamageDealt, totalDamageTaken);
         return false;
     }
 

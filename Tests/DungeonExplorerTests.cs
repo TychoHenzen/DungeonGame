@@ -42,7 +42,7 @@ public class DungeonExplorerTests
         // Make sure the dungeon is small and simple for testing
         _dungeon.Width = 5;
         _dungeon.Height = 5;
-        _dungeon.TileMap = new Tile[5, 5];
+        _dungeon.TileMap = new Grid<Tile>(5, 5);
 
         // Create all passable tiles
         for (var x = 0; x < 5; x++)
@@ -51,7 +51,7 @@ public class DungeonExplorerTests
             {
                 _dungeon.TileMap[x, y] = new Tile
                 {
-                    Type = "Stone",
+                    Type = TileType.Stone,
                     X = x,
                     Y = y,
                     IsPassable = true,
