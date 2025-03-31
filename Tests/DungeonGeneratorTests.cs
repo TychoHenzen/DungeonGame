@@ -52,7 +52,10 @@ public class DungeonGeneratorTests
                 }
             }
 
-            if (hasPassableTiles) break;
+            if (hasPassableTiles)
+            {
+                break;
+            }
         }
 
         Assert.That(hasPassableTiles, Is.True, "Dungeon should have passable tiles");

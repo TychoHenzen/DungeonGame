@@ -127,6 +127,7 @@ public class InventoryState : GameState, ITextureUser
         var mouseState = Mouse.GetState();
         var isNewClick = mouseState.LeftButton == ButtonState.Pressed &&
                          _previousMouseState.LeftButton == ButtonState.Released;
+
         var isReleased = mouseState.LeftButton == ButtonState.Released &&
                          _previousMouseState.LeftButton == ButtonState.Pressed;
 

@@ -27,11 +27,8 @@ public class Enemy
     public Item? GenerateLoot()
     {
         // Simple implementation - 50% chance to drop an item
-        if (Random.Shared.NextDouble() <= 0.5)
-        {
-            return null;
-        }
-
-        return ItemGenerator.GenerateItemWithSignature(Signature);
+        return Random.Shared.NextDouble() <= 0.5
+            ? null
+            : ItemGenerator.GenerateItemWithSignature(Signature);
     }
 }

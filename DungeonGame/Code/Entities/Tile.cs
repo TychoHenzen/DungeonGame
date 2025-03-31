@@ -1,3 +1,9 @@
+#region
+
+using DungeonGame.Code.Enums;
+
+#endregion
+
 namespace DungeonGame.Code.Entities;
 
 /// <summary>
@@ -5,7 +11,7 @@ namespace DungeonGame.Code.Entities;
 /// </summary>
 public class Tile
 {
-    public string Type { get; set; }
+    public TileType Type { get; set; }
     public Signature Signature { get; set; }
     public int X { get; set; }
     public int Y { get; set; }

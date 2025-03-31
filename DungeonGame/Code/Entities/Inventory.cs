@@ -17,7 +17,7 @@ public class Inventory
         Capacity = capacity;
     }
 
-    public List<Item> Items { get; }
+    public IList<Item> Items { get; }
     public int Capacity { get; }
 
     public bool AddItem(Item item)

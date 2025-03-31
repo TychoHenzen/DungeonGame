@@ -12,6 +12,12 @@ using DungeonGame.Const;
 
 namespace DungeonGame.Code.Systems;
 
+#region
+
+using Turn = (float damageDealt, float damageTaken);
+
+#endregion
+
 /// <summary>
 ///     Combat simulator that handles dungeon run simulations
 /// </summary>
@@ -103,13 +109,15 @@ public class CombatSimulator
             EnemiesDefeated = enemiesDefeated,
             CombatLog = combatLog
         };
+
         return CreateDungeonResult(runData);
     }
 
     /// <summary>
     ///     Calculates player stats with affinity bonus applied
     /// </summary>
-    private PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon, Item? selectedItem = null)
+    private static PlayerStats CalculatePlayerStatsWithAffinity(Player player, Dungeon dungeon,
+        Item? selectedItem = null)
     {
         var playerStats = player.CalculateStats();
 
@@ -123,6 +131,7 @@ public class CombatSimulator
             {
                 [SlotType.Selected] = selectedItem
             };
+
             equippedItems = tempItems;
         }
 
@@ -162,6 +171,7 @@ public class CombatSimulator
             // Process combat round
             var roundResult = ProcessCombatRound(playerFirst, playerStats, enemy, ref enemyHealth, ref currentHealth,
                 combatLog);
+
             totalDamageDealt += roundResult.damageDealt;
             totalDamageTaken += roundResult.damageTaken;
 
@@ -187,7 +197,7 @@ public class CombatSimulator
     /// <summary>
     ///     Processes a single round of combat
     /// </summary>
-    private (float damageDealt, float damageTaken) ProcessCombatRound(
+    private static Turn ProcessCombatRound(
         bool playerFirst, PlayerStats playerStats, Enemy enemy,
         ref float enemyHealth, ref float currentHealth, ICollection<string> combatLog)
     {
@@ -293,6 +303,7 @@ public class CombatSimulator
         {
             data.CombatLog.Add(
                 $"DUNGEON CLEARED! Defeated {data.EnemiesDefeated}/{data.Dungeon.Enemies.Count} enemies.");
+
             data.CombatLog.Add(
                 $"Total damage dealt: {(int)data.TotalDamageDealt}, Total damage taken: {(int)data.TotalDamageTaken}");
         }
@@ -300,6 +311,7 @@ public class CombatSimulator
         // Define casualties based on remaining health
         var casualties = data.Success &&
                          data.CurrentHealth / data.PlayerStats.MaxHealth < Constants.Combat.LowHealthThreshold;
+
         if (casualties)
         {
             data.CombatLog.Add("Barely survived with heavy injuries!");
@@ -347,6 +359,7 @@ public class CombatSimulator
 
         var lootCount = Random.Shared.Next(Constants.Combat.MinLootCount,
             Constants.Combat.MaxLootCount) + (casualties ? 0 : 2);
+
         for (var i = 0; i < lootCount; i++)
         {
             loot.Add(ItemGenerator.GenerateItemWithSignature(dungeon.Signature));

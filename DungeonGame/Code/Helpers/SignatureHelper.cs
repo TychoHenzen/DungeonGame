@@ -35,6 +35,7 @@ public static class SignatureHelper
         var maxDistance =
             (float)Math.Sqrt(Math.Max(sig1.Length, sig2.Length) *
                              4); // Maximum possible distance in n-dimensional space with values -1 to 1
+
         return 1 - Math.Min(CalculateDistance(sig1, sig2) / maxDistance, 1.0f);
     }
 }

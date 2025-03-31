@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DungeonGame.Code.Entities;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Helpers;
 using DungeonGame.Const;
 
@@ -41,11 +42,7 @@ public static class DungeonGenerator
 
     private static void GenerateTileMap(Dungeon dungeon, Signature signature)
     {
-        dungeon.TileMap = new Tile[dungeon.Width, dungeon.Height];
-
-        // Use temperature and wetness as primary factors for tile distribution
-        var temperature = signature[0]; // First dimension
-        var wetness = signature[2]; // Third dimension
+        dungeon.TileMap = new Grid<Tile>(dungeon.Width, dungeon.Height);
 
         // Create basic noise for map generation
         var noiseMap = GenerateSimpleNoise(dungeon.Width, dungeon.Height);
@@ -57,14 +54,12 @@ public static class DungeonGenerator
             {
                 // Combine noise with signature to determine tile type
                 var noiseValue = noiseMap[x, y];
-                var adjustedTemp = temperature + noiseValue * 0.5f;
-                var adjustedWet = wetness + noiseValue * 0.3f;
 
                 // Generate tile signature from the base signature with noise influence
                 var tileSignature = GenerateTileSignature(signature, noiseValue);
 
                 // Determine tile type based on adjusted values
-                var tileType = GetTileTypeForValues(adjustedTemp, adjustedWet, noiseValue);
+                var tileType = GetTileTypeForValues(tileSignature);
 
                 // Create the tile
                 dungeon.TileMap[x, y] = new Tile
@@ -73,7 +68,7 @@ public static class DungeonGenerator
                     Signature = tileSignature,
                     X = x,
                     Y = y,
-                    IsPassable = tileType != "Lava" && tileType != "Water" // Simple passability
+                    IsPassable = tileType != TileType.Lava && tileType != TileType.Stone // Simple passability
                 };
 
                 // Add to tile list for compatibility with existing code
@@ -85,42 +80,32 @@ public static class DungeonGenerator
         EnsureTraversableMap(dungeon);
     }
 
-    private static float[,] GenerateSimpleNoise(int width, int height)
+    private static Grid<float> GenerateSimpleNoise(int width, int height)
     {
-        var noise = new float[width, height];
+        var noise = new Grid<float>(width, height);
 
         // Simple implementation of noise (this could be replaced with proper Perlin noise)
-        for (var x = 0; x < width; x++)
-        {
-            for (var y = 0; y < height; y++)
-            {
-                // Generate a smooth noise value between -1 and 1
-                noise[x, y] = (float)(Random.Shared.NextDouble() * 2 - 1);
-            }
-        }
+        noise.Foreach((x, y) => { noise[x, y] = (float)(Random.Shared.NextDouble() * 2 - 1); });
 
         // Smooth the noise (simple box blur)
-        var smoothedNoise = new float[width, height];
-        for (var x = 0; x < width; x++)
+        var smoothedNoise = new Grid<float>(width, height);
+        smoothedNoise.Foreach((x, y) =>
         {
-            for (var y = 0; y < height; y++)
+            float sum = 0;
+            var count = 0;
+
+            // Average of neighbors
+            for (var nx = Math.Max(0, x - 1); nx <= Math.Min(width - 1, x + 1); nx++)
             {
-                float sum = 0;
-                var count = 0;
-
-                // Average of neighbors
-                for (var nx = Math.Max(0, x - 1); nx <= Math.Min(width - 1, x + 1); nx++)
+                for (var ny = Math.Max(0, y - 1); ny <= Math.Min(height - 1, y + 1); ny++)
                 {
-                    for (var ny = Math.Max(0, y - 1); ny <= Math.Min(height - 1, y + 1); ny++)
-                    {
-                        sum += noise[nx, ny];
-                        count++;
-                    }
+                    sum += noise[nx, ny];
+                    count++;
                 }
-
-                smoothedNoise[x, y] = sum / count;
             }
-        }
+
+            smoothedNoise[x, y] = sum / count;
+        });
 
         return smoothedNoise;
     }
@@ -138,45 +123,36 @@ public static class DungeonGenerator
         return new Signature(tileSignature);
     }
 
-    private static string GetTileTypeForValues(float temperature, float wetness, float noise)
+    private static TileType GetTileTypeForValues(Signature signature)
     {
-        // Determine tile type based on temperature and wetness with some randomness
-        if (temperature > 0.5f && wetness < -0.3f)
+        // Define tile type conditions as tuples with (condition, tileType)
+        var tileConditions = new List<(Func<Signature, bool> Condition, TileType Type)>
         {
-            return "Lava";
+            // Special environmental conditions
+            (s => s.Temperature > 0.5f && s.Wetness < -0.3f, TileType.Lava),
+            (s => s.Temperature < -0.5f && s.Wetness > 0.3f, TileType.Ice),
+            (s => s.Wetness > 0.5f, TileType.Water),
+
+            // Standard terrain
+            (s => s.Temperature > 0 && s.Wetness > 0, TileType.Grass),
+            (s => s.Temperature > 0.3f && s.Wetness < 0, TileType.Sand),
+
+            // Resource distributions based on resonance (formerly noise)
+            (s => s.Resonance > 0.5f, TileType.Crystal),
+            (s => s.Resonance < -0.5f, TileType.Wood)
+        };
+
+        // Find the first matching condition or default to Stone
+        foreach (var (condition, tileType) in tileConditions)
+        {
+            if (condition(signature))
+            {
+                return tileType;
+            }
         }
 
-        if (temperature < -0.5f && wetness > 0.3f)
-        {
-            return "Ice";
-        }
-
-        if (wetness > 0.5f)
-        {
-            return "Water";
-        }
-
-        if (temperature > 0 && wetness > 0)
-        {
-            return "Grass";
-        }
-
-        if (temperature > 0.3f && wetness < 0)
-        {
-            return "Sand";
-        }
-
-        if (noise > 0.5f) // Use noise for crystal distribution
-        {
-            return "Crystal";
-        }
-
-        if (noise < -0.5f) // Use noise for wood distribution
-        {
-            return "Wood";
-        }
-
-        return "Stone";
+        // Default tile type
+        return TileType.Stone;
     }
 
     private static void EnsureTraversableMap(Dungeon dungeon)
@@ -190,7 +166,7 @@ public static class DungeonGenerator
             dungeon.TileMap[pathX, y].IsPassable = true;
 
             // Set simple stone path
-            dungeon.TileMap[pathX, y].Type = "Stone";
+            dungeon.TileMap[pathX, y].Type = TileType.Stone;
 
             // Randomly adjust path to make it more natural
             if (Random.Shared.Next(100) < 40 && y < dungeon.Height - 1)

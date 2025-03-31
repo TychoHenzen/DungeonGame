@@ -48,6 +48,7 @@ public class PlayerTests
             Slot = SlotType.Weapon,
             Power = 10
         };
+
         _player.EquipItem(weapon);
 
         // Act

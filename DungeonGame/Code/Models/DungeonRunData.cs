@@ -19,5 +19,5 @@ public class DungeonRunData
     public float TotalDamageDealt { get; set; }
     public float TotalDamageTaken { get; set; }
     public int EnemiesDefeated { get; set; }
-    public List<string> CombatLog { get; set; }
+    public IList<string> CombatLog { get; set; }
 }

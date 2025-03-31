@@ -237,6 +237,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                             tileRect.Width / 2,
                             tileRect.Height / 2
                         );
+
                         spriteBatch.Draw(_texture, playerRect, Color.White);
                     }
 
@@ -250,6 +251,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                             tileRect.Width / 3,
                             tileRect.Height / 3
                         );
+
                         spriteBatch.Draw(_texture, enemyRect, Color.Red);
                     }
 
@@ -263,6 +265,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                             tileRect.Width / 3,
                             tileRect.Height / 3
                         );
+
                         spriteBatch.Draw(_texture, defeatRect, Color.Gray);
                     }
                 }
@@ -275,6 +278,7 @@ public class DungeonState(SignatureGame game) : GameState(game), ITextureUser
                         tileSize,
                         tileSize
                     );
+
                     spriteBatch.Draw(_texture, tileRect, Color.Black * 0.7f);
                 }
             }

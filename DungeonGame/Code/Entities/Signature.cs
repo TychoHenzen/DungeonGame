@@ -1,6 +1,7 @@
 #region
 
 using System;
+using DungeonGame.Code.Enums;
 using DungeonGame.Code.Helpers;
 
 #endregion
@@ -47,9 +48,19 @@ public sealed class Signature
                 return _values[index];
             }
 
-            throw new IndexOutOfRangeException("Signature dimension index out of range");
+            throw new ArgumentException("Signature dimension index out of range");
         }
     }
+
+
+    public float Temperature => this[(int)SignatureType.Temperature];
+    public float Hardness => this[(int)SignatureType.Hardness];
+    public float Wetness => this[(int)SignatureType.Wetness];
+    public float Luminosity => this[(int)SignatureType.Luminosity];
+    public float Weight => this[(int)SignatureType.Weight];
+    public float Conductivity => this[(int)SignatureType.Conductivity];
+    public float Volatility => this[(int)SignatureType.Volatility];
+    public float Resonance => this[(int)SignatureType.Resonance];
 
     /// <summary>
     ///     Creates a random signature

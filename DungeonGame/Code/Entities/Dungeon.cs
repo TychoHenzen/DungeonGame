@@ -27,6 +27,11 @@ public class Dungeon
         PlayerY = 0;
     }
 
+    public Dungeon(IList<Item> collectedLoot)
+    {
+        CollectedLoot = collectedLoot;
+    }
+
     // Original properties
     public Signature Signature { get; set; }
 
@@ -38,7 +43,7 @@ public class Dungeon
     // New properties for tile map
     public int Width { get; set; }
     public int Height { get; set; }
-    public Tile[,] TileMap { get; set; }
+    public Grid<Tile> TileMap { get; set; }
 
     // Track exploration state
     public int PlayerX { get; set; }

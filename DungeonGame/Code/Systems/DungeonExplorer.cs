@@ -12,6 +12,12 @@ using DungeonGame.Const;
 
 namespace DungeonGame.Code.Systems;
 
+#region
+
+using CombatTurn = (bool EnemyDefeated, float DamageDealt, float DamageTaken);
+
+#endregion
+
 /// <summary>
 ///     Handles automated dungeon exploration and combat
 /// </summary>
@@ -68,27 +74,7 @@ public class DungeonExplorer
 
                 if (combatResult.EnemyDefeated)
                 {
-                    // Add enemy to defeated list
-                    _dungeon.DefeatedEnemies.Add(enemy);
-
-                    // Generate and collect loot
-                    var loot = enemy.GenerateLoot();
-                    if (loot != null)
-                    {
-                        _dungeon.CollectedLoot.Add(loot);
-                        _explorationLog.Add($"Found {loot.Name} from defeated {enemy.Name}!");
-                    }
-                    else
-                    {
-                        _explorationLog.Add($"No loot found from defeated {enemy.Name}.");
-                    }
-
-                    // Check if all enemies are defeated
-                    if (_dungeon.AreAllEnemiesDefeated())
-                    {
-                        _explorationLog.Add("All enemies defeated! Dungeon cleared!");
-                        _isRunning = false;
-                    }
+                    HandleEnemyDefeated(enemy);
                 }
                 else
                 {
@@ -112,6 +98,31 @@ public class DungeonExplorer
         return CreateDungeonResult();
     }
 
+    private void HandleEnemyDefeated(Enemy enemy)
+    {
+        // Add enemy to defeated list
+        _dungeon.DefeatedEnemies.Add(enemy);
+
+        // Generate and collect loot
+        var loot = enemy.GenerateLoot();
+        if (loot != null)
+        {
+            _dungeon.CollectedLoot.Add(loot);
+            _explorationLog.Add($"Found {loot.Name} from defeated {enemy.Name}!");
+        }
+        else
+        {
+            _explorationLog.Add($"No loot found from defeated {enemy.Name}.");
+        }
+
+        // Check if all enemies are defeated
+        if (_dungeon.AreAllEnemiesDefeated())
+        {
+            _explorationLog.Add("All enemies defeated! Dungeon cleared!");
+            _isRunning = false;
+        }
+    }
+
     /// <summary>
     ///     Calculates player stats with affinity bonus applied
     /// </summary>
@@ -133,7 +144,7 @@ public class DungeonExplorer
     /// <summary>
     ///     Simulates combat between player and an enemy
     /// </summary>
-    private (bool EnemyDefeated, float DamageDealt, float DamageTaken) SimulateCombat(Enemy enemy)
+    private CombatTurn SimulateCombat(Enemy enemy)
     {
         // Log enemy encounter
         _explorationLog.Add($"Encountered {enemy.Name}! (HP: {(int)enemy.Health}, DMG: {(int)enemy.Damage})");
@@ -148,48 +159,13 @@ public class DungeonExplorer
         {
             rounds++;
 
-            // Determine if player attacks first based on speed
-            var playerFirst = _playerStats.Speed >= enemy.Damage * Constants.Combat.PlayerSpeedAdvantageFactor;
-
-            // Player's first attack if going first
-            if (playerFirst)
+            if (PlayTurn(enemy,
+                    ref enemyHealth,
+                    ref totalDamageDealt,
+                    ref totalDamageTaken,
+                    out var simulateCombat))
             {
-                var damage = CalculatePlayerDamage(_playerStats, enemy);
-                ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name);
-                totalDamageDealt += damage;
-
-                // Check if enemy defeated
-                if (enemyHealth <= 0)
-                {
-                    _explorationLog.Add($"- {enemy.Name} was defeated!");
-                    return (true, totalDamageDealt, totalDamageTaken);
-                }
-            }
-
-            // Enemy attack
-            var enemyDamage = CalculateEnemyDamage(enemy, _playerStats);
-            ApplyDamageToPlayer(ref _currentHealth, enemyDamage, enemy.Name);
-            totalDamageTaken += enemyDamage;
-
-            // Check if player defeated
-            if (_currentHealth <= 0)
-            {
-                return (false, totalDamageDealt, totalDamageTaken);
-            }
-
-            // Player's second attack if going second
-            if (!playerFirst)
-            {
-                var damage = CalculatePlayerDamage(_playerStats, enemy);
-                ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name);
-                totalDamageDealt += damage;
-
-                // Check if enemy defeated
-                if (enemyHealth <= 0)
-                {
-                    _explorationLog.Add($"- {enemy.Name} was defeated!");
-                    return (true, totalDamageDealt, totalDamageTaken);
-                }
+                return simulateCombat;
             }
 
             // Prevent infinite loops
@@ -203,10 +179,63 @@ public class DungeonExplorer
         return (enemyHealth <= 0, totalDamageDealt, totalDamageTaken);
     }
 
+    private bool PlayTurn(Enemy enemy, ref float enemyHealth, ref float totalDamageDealt, ref float totalDamageTaken,
+        out CombatTurn simulateCombat)
+    {
+        // Determine if player attacks first based on speed
+        var playerFirst = _playerStats.Speed >= enemy.Damage * Constants.Combat.PlayerSpeedAdvantageFactor;
+
+        // Player's first attack if going first
+        if (playerFirst)
+        {
+            var damage = CalculatePlayerDamage(_playerStats, enemy);
+            ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name);
+            totalDamageDealt += damage;
+
+            // Check if enemy defeated
+            if (enemyHealth <= 0)
+            {
+                _explorationLog.Add($"- {enemy.Name} was defeated!");
+                simulateCombat = (true, totalDamageDealt, totalDamageTaken);
+                return true;
+            }
+        }
+
+        // Enemy attack
+        var enemyDamage = CalculateEnemyDamage(enemy, _playerStats);
+        ApplyDamageToPlayer(ref _currentHealth, enemyDamage, enemy.Name);
+        totalDamageTaken += enemyDamage;
+
+        // Check if player defeated
+        if (_currentHealth <= 0)
+        {
+            simulateCombat = (false, totalDamageDealt, totalDamageTaken);
+            return true;
+        }
+
+        // Player's second attack if going second
+        if (!playerFirst)
+        {
+            var damage = CalculatePlayerDamage(_playerStats, enemy);
+            ApplyDamageToEnemy(ref enemyHealth, damage, enemy.Name);
+            totalDamageDealt += damage;
+
+            // Check if enemy defeated
+            if (enemyHealth <= 0)
+            {
+                _explorationLog.Add($"- {enemy.Name} was defeated!");
+                simulateCombat = (true, totalDamageDealt, totalDamageTaken);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>
     ///     Calculates damage dealt by player with randomness
     /// </summary>
-    private float CalculatePlayerDamage(PlayerStats playerStats, Enemy enemy)
+    private static float CalculatePlayerDamage(PlayerStats playerStats, Enemy enemy)
     {
         // Calculate player damage with variance (80-120% damage)
         var damageVariance = 0.8f + (float)Random.Shared.NextDouble() * 0.4f;
@@ -217,7 +246,7 @@ public class DungeonExplorer
     /// <summary>
     ///     Calculates damage dealt by enemy with randomness
     /// </summary>
-    private float CalculateEnemyDamage(Enemy enemy, PlayerStats playerStats)
+    private static float CalculateEnemyDamage(Enemy enemy, PlayerStats playerStats)
     {
         // Enemy damage with variance (90-110% damage)
         var enemyDamageVariance = 0.9f + (float)Random.Shared.NextDouble() * 0.2f;
@@ -385,7 +414,7 @@ public class DungeonExplorer
     /// <summary>
     ///     Calculates the affinity bonus based on how well the player's equipment matches the dungeon's signature
     /// </summary>
-    private float CalculateAffinityBonus(Dictionary<SlotType, Item?> equippedItems, Signature dungeonSignature)
+    private static float CalculateAffinityBonus(Dictionary<SlotType, Item?> equippedItems, Signature dungeonSignature)
     {
         float affinitySum = 0;
         var itemCount = 0;
